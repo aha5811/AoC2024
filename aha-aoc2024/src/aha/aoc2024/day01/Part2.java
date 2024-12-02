@@ -6,17 +6,17 @@ import java.util.List;
 
 public class Part2 extends Part1 {
 	
-	private long countN(final int n, final List<Integer> ns) {
+	private long countNMod(final int n, final List<Integer> ns) {
 		final int s = ns.size();
 		ns.removeIf(i -> i == n);
 		return s - ns.size();
 	}
 	
 	@Override
-	protected void toRes(final List<Integer> firsts, final List<Integer> seconds) {
+	protected void compute(final List<Integer> firsts, final List<Integer> seconds) {
 		while (!firsts.isEmpty()) {
 			final int n = firsts.get(0);
-			this.res += countN(n, firsts) * n * countN(n, seconds);
+			this.res += countNMod(n, firsts) * n * countNMod(n, seconds);
 		}
 	}
 	
