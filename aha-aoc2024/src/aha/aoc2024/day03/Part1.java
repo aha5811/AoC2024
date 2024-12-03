@@ -9,10 +9,10 @@ import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 
 public class Part1 extends Part {
-
+	
 	protected final static String MUL_OP = "mul\\((\\d+),(\\d+)\\)";
 	private final static Pattern P = Pattern.compile(MUL_OP);
-	
+
 	@Override
 	public Part compute(final String file) {
 		for (final String line : Utils.readLines(this.dir + file)) {
@@ -22,19 +22,19 @@ public class Part1 extends Part {
 		}
 		return this;
 	}
-	
-	protected final long doMul(final Matcher m) {
-		return this.res += Long.parseLong(m.group(1)) * Long.parseLong(m.group(2));
-	}
 
+	protected final void doMul(final Matcher m) {
+		this.res += Long.parseLong(m.group(1)) * Long.parseLong(m.group(2));
+	}
+	
 	@Override
 	public void aTest() {
 		assertEquals(161, new Part1().compute("test1.txt").res);
 	}
-	
+
 	@Override
 	public void main() {
 		assertEquals(174960292, new Part1().compute("input.txt").res);
 	}
-
+	
 }
