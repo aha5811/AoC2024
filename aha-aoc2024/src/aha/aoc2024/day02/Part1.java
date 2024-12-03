@@ -9,16 +9,12 @@ import aha.aoc2024.Utils;
 
 public class Part1 extends Part {
 
-	static String dir = "day02/";
-	
-	public Part1() {
-	}
-
 	@Override
 	public Part compute(final String file) {
-		for (final String line : Utils.readLines(dir + file))
-			if (checkSafe(Utils.toIs(line)))
-				this.res++;
+		this.res =
+				Utils.streamLines(this.dir + file)
+				.filter(line -> checkSafe(Utils.toIs(line)))
+				.count();
 		return this;
 	}
 	
@@ -26,12 +22,14 @@ public class Part1 extends Part {
 		return _checkSafeMod(ns);
 	}
 	
+	public final static int MIN_DIFF = 1, MAX_DIFF = 3;
+	
 	protected final boolean _checkSafeMod(final List<Integer> ns) {
-		final boolean inc = ns.get(1) - ns.get(0) > 0;
+		final boolean inc = ns.get(1) - ns.get(0) > 0; // 1 -> 2 increasing?
 		int n0 = ns.remove(0);
 		while (!ns.isEmpty()) {
 			final int n1 = ns.remove(0), diff = n1 - n0, dist = Math.abs(diff);
-			if (dist < 1 || dist > 3 || diff > 0 ^ inc)
+			if (dist < MIN_DIFF || dist > MAX_DIFF || diff > 0 ^ inc)
 				return false;
 			n0 = n1;
 		}

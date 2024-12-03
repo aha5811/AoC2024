@@ -6,11 +6,6 @@ import aha.aoc2024.Part;
 
 public class Part1 extends Part {
 	
-	static String dir = "day__/";
-
-	public Part1() {
-	}
-	
 	@Override
 	public Part compute(final String file) {
 		return this;
