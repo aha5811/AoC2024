@@ -10,11 +10,13 @@ import aha.aoc2024.Utils;
 
 public class Part1 extends Part {
 
+	protected final static String MUL_OP = "mul\\((\\d+),(\\d+)\\)";
+	private final static Pattern P = Pattern.compile(MUL_OP);
+	
 	@Override
 	public Part compute(final String file) {
-		final Pattern p = Pattern.compile("mul\\((\\d+),(\\d+)\\)");
 		for (final String line : Utils.readLines(this.dir + file)) {
-			final Matcher m = p.matcher(line);
+			final Matcher m = P.matcher(line);
 			while (m.find())
 				doMul(m);
 		}
