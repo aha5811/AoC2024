@@ -5,21 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 import aha.aoc2024.Utils.CharMap;
+import aha.aoc2024.Utils.Symbol;
 
 public class Part1 extends Part {
 	
 	@Override
 	public Part compute(final String file) {
 		final CharMap cm = new CharMap(Utils.readLines(this.dir + file));
-		for (int x = 0; x < cm.w; x++)
-			for (int y = 0; y < cm.h; y++)
-				computeFor(cm, x, y);
+		computeFor(cm);
 		return this;
 	}
-
-	protected void computeFor(final CharMap cm, final int x, final int y) {
-		if (cm.getChar(x, y) == 'X')
-			this.res += countFor(cm, x, y);
+	
+	protected void computeFor(final CharMap cm) {
+		for (final Symbol s : cm.getAll('X'))
+			this.res += countFor(cm, s.x, s.y);
 	}
 
 	private long countFor(final CharMap cm, final int x, final int y) {
