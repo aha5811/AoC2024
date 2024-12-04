@@ -11,8 +11,7 @@ public class Part1 extends Part {
 	
 	@Override
 	public Part compute(final String file) {
-		final CharMap cm = new CharMap(Utils.readLines(this.dir + file));
-		computeFor(cm);
+		computeFor(new CharMap(Utils.readLines(this.dir + file)));
 		return this;
 	}
 	
@@ -34,8 +33,10 @@ public class Part1 extends Part {
 	 * offset != 0 moves the starting x,y wrt to given direction
 	 */
 	protected final String getWord(final CharMap cm, int x, int y, final int[] dir, final int l, final int offset) {
-		x = x + offset * dir[0];
-		y = y + offset * dir[1];
+		if (offset != 0) {
+			x = x + offset * dir[0];
+			y = y + offset * dir[1];
+		}
 
 		String ret = "";
 		for (int i = 0; i < l; i++) {
