@@ -12,18 +12,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import aha.aoc2024.Utils.CharMap;
-
 public class Utils {
 	
-	private final static String dir;
-	static {
-		dir = "/" + Utils.class.getPackageName().replace('.', '/') + "/";
-	}
+	private final static String DIR = "/" + Utils.class.getPackageName().replace('.', '/') + "/";
 
-	public static Stream<String> streamLines(final String string) {
+	public static Stream<String> streamLines(final String file) {
 		try {
-			return Files.lines(Paths.get(Utils.class.getResource(dir + string).toURI()));
+			return Files.lines(Paths.get(Utils.class.getResource(DIR + file).toURI()));
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 			return null;
@@ -141,7 +136,7 @@ public class Utils {
 			
 			String ret = "";
 			for (int i = 0; i < l; i++) {
-				final Character c = this.getChar(x = x + dir[0], y = y + dir[1]);
+				final Character c = getChar(x = x + dir[0], y = y + dir[1]);
 				if (c != null)
 					ret += c;
 			}
@@ -188,7 +183,7 @@ public class Utils {
 	public final static int[] L = new int[] { -1, 0 };
 	public final static int[] R = new int[] { 1, 0 };
 	
-	public final static int[][] dirs90 = new int[][] { U, R, D, L };
+	public final static int[][] DIRS90 = new int[][] { U, R, D, L };
 	
 	public final static int[] N = U;
 	public final static int[] NE = new int[] { 1, -1 };
@@ -199,6 +194,6 @@ public class Utils {
 	public final static int[] W = L;
 	public final static int[] NW = new int[] { -1, 1 };
 	
-	public final static int[][] dirs45 = new int[][] { N, NE, E, SE, S, SW, W, NW };
+	public final static int[][] DIRS45 = new int[][] { N, NE, E, SE, S, SW, W, NW };
 
 }

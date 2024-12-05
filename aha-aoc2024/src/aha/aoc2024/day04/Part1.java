@@ -17,7 +17,7 @@ public class Part1 extends Part {
 	
 	protected void computeFor(final CharMap cm) {
 		for (final Symbol s : cm.getAll('X'))
-			for (final int[] dir : Utils.dirs45)
+			for (final int[] dir : Utils.DIRS45)
 				if (cm.getWord(s.x, s.y, dir, 3, 0).equals("MAS"))
 					this.res++;
 	}
