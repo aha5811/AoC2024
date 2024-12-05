@@ -10,7 +10,7 @@ public class Part2 extends Part1 {
 
 	@Override
 	protected void computeForPages(final List<Rule> rules, final List<Integer> pages) {
-		if (!isOk(rules, pages)) {
+		if (!satisifes(pages, rules)) {
 			Collections.sort(pages, new Comparator<>() {
 				@Override
 				public int compare(final Integer i1, final Integer i2) {

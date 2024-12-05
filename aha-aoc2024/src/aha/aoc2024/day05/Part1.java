@@ -12,29 +12,29 @@ public class Part1 extends Part {
 
 	@Override
 	public Part compute(final String file) {
+		
 		final List<Rule> rules = new LinkedList<>();
-		final List<List<Integer>> pagesList = new LinkedList<>();
-
+		
 		for (final String line : Utils.readLines(this.dir + file))
-			if (line.contains("|"))
+			if (line.contains("|")) // is rule
 				rules.add(Rule.fromString(line));
-			else if (line.contains(","))
-				pagesList.add(Utils.toIs(line.replace(',', ' ')));
-
-		for (final List<Integer> pages : pagesList)
-			computeForPages(rules, pages);
+			else if (line.contains(",")) { // we know all pages lines are below all rules lines
+				final List<Integer> pages = Utils.toIs(line.replace(',', ' '));
+				
+				computeForPages(rules, pages);
+			}
 		
 		return this;
 	}
 	
 	protected void computeForPages(final List<Rule> rules, final List<Integer> pages) {
-		if (isOk(rules, pages))
+		if (satisifes(pages, rules))
 			this.res += getMiddle(pages);
 	}
 	
-	protected final boolean isOk(final List<Rule> rules, final List<Integer> pages) {
+	protected final boolean satisifes(final List<Integer> pages, final List<Rule> rules) {
 		for (final Rule r : rules)
-			if (!r.isOk(pages))
+			if (!r.isSatisfied(pages))
 				return false;
 		return true;
 	}
@@ -43,7 +43,7 @@ public class Part1 extends Part {
 		return pages.get((pages.size() - 1) / 2);
 	}
 	
-	protected static class Rule {
+	protected final static class Rule {
 		protected final int first;
 		protected final int second;
 		
@@ -57,7 +57,7 @@ public class Part1 extends Part {
 			return new Rule(is.remove(0), is.get(0));
 		}
 
-		boolean isOk(final List<Integer> is) {
+		boolean isSatisfied(final List<Integer> is) {
 			final int fi = is.indexOf(this.first), si = is.indexOf(this.second);
 			return fi == -1 || si == -1 || fi < si;
 		}
