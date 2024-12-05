@@ -9,26 +9,22 @@ import java.util.List;
 public class Part2 extends Part1 {
 
 	@Override
-	protected void initFor(final List<Rule> rules) {
-		this.myComp = new Comparator<>() {
-			@Override
-			public int compare(final Integer i1, final Integer i2) {
-				Integer ret = null;
-				for (final Rule r : rules)
-					if (ret == null && r.isApplicable(i1, i2))
-						ret = i1 == r.first && i2 == r.second ? -1 : +1;
-				return ret == null ? 0 : ret;
-			}
-		};
-	}
-	
-	private Comparator<Integer> myComp;
-	
-	@Override
-	protected void computeForPages(final List<Rule> rules, final List<Integer> is) {
-		if (!isOk(rules, is)) {
-			Collections.sort(is, this.myComp);
-			this.res += getMiddle(is);
+	protected void computeForPages(final List<Rule> rules, final List<Integer> pages) {
+		if (!isOk(rules, pages)) {
+			Collections.sort(pages, new Comparator<>() {
+				@Override
+				public int compare(final Integer i1, final Integer i2) {
+					Integer ret = null;
+					for (final Rule r : rules)
+						if (ret == null)
+							if (i1 == r.first && i2 == r.second)
+								ret = -1;
+							else if (i1 == r.second && i2 == r.first)
+								ret = +1;
+					return ret == null ? 0 : ret;
+				}
+			});
+			this.res += getMiddle(pages);
 		}
 	}
 
