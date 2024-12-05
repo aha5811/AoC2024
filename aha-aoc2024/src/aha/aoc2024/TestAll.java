@@ -9,7 +9,7 @@ import org.junit.platform.suite.api.Suite;
 	aha.aoc2024.day02.Part1.class, aha.aoc2024.day02.Part2.class,
 	aha.aoc2024.day03.Part1.class, aha.aoc2024.day03.Part2.class,
 	aha.aoc2024.day04.Part1.class, aha.aoc2024.day04.Part2.class,
-		aha.aoc2024.day05.Part1.class, // aha.aoc2024.day05.Part2.class,
+	aha.aoc2024.day05.Part1.class, aha.aoc2024.day05.Part2.class,
 	//	aha.aoc2024.day06.Part1.class, aha.aoc2024.day06.Part2.class,
 	//	aha.aoc2024.day07.Part1.class, aha.aoc2024.day07.Part2.class,
 	//	aha.aoc2024.day08.Part1.class, aha.aoc2024.day08.Part2.class,

@@ -13,19 +13,25 @@ public class Part1 extends Part {
 	@Override
 	public Part compute(final String file) {
 		final List<Rule> rules = new LinkedList<>();
-		final List<List<Integer>> pages = new LinkedList<>();
+		final List<List<Integer>> pagesList = new LinkedList<>();
+		
 		for (final String line : Utils.readLines(this.dir + file))
 			if (line.contains("|"))
 				rules.add(Rule.fromString(line));
 			else if (line.contains(","))
-				pages.add(Utils.toIs(line.replace(',', ' ')));
+				pagesList.add(Utils.toIs(line.replace(',', ' ')));
 		
-		for (final List<Integer> is : pages)
+		initFor(rules);
+
+		for (final List<Integer> is : pagesList)
 			computeForPages(rules, is);
 
 		return this;
 	}
 
+	protected void initFor(final List<Rule> rules2) {
+	}
+	
 	protected void computeForPages(final List<Rule> rules, final List<Integer> is) {
 		if (isOk(rules, is))
 			this.res += getMiddle(is);
@@ -43,8 +49,8 @@ public class Part1 extends Part {
 	}
 
 	protected static class Rule {
-		private final int first;
-		private final int second;
+		protected final int first;
+		protected final int second;
 
 		private Rule(final int first, final int second) {
 			this.first = first;
@@ -54,6 +60,10 @@ public class Part1 extends Part {
 		public static Rule fromString(final String s) {
 			final List<Integer> is = Utils.toIs(s.replace('|', ' '));
 			return new Rule(is.remove(0), is.remove(0));
+		}
+		
+		boolean isApplicable(final int i1, final int i2) {
+			return (i1 == this.first || i1 == this.second) && (i2 == this.first || i2 == this.second);
 		}
 
 		boolean isOk(final List<Integer> is) {
