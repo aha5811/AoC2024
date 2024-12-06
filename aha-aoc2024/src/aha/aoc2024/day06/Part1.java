@@ -2,11 +2,6 @@ package aha.aoc2024.day06;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 import aha.aoc2024.Utils.CharMap;
@@ -57,13 +52,11 @@ public class Part1 extends Part {
 	}
 	
 	protected static class Dir {
-		String name;
 		char c;
 		int dx;
 		int dy;
 		
-		public Dir(final String name, final char c, final int dx, final int dy) {
-			this.name = name;
+		public Dir(final char c, final int dx, final int dy) {
 			this.c = c;
 			this.dx = dx;
 			this.dy = dy;
@@ -75,23 +68,17 @@ public class Part1 extends Part {
 				return true;
 			if (obj == null || !(obj instanceof Dir))
 				return false;
-			final Dir o = (Dir) obj;
-			return this.name.equals(o.name);
-		}
-
-		@Override
-		public int hashCode() {
-			return this.name.hashCode();
+			return this.c == ((Dir) obj).c;
 		}
 	}
 
 	protected final static Dir
-	U = new Dir("U", '^', Utils.U[0], Utils.U[1]),
-	R = new Dir("R", '>', Utils.R[0], Utils.R[1]),
-	D = new Dir("D", 'v', Utils.D[0], Utils.D[1]),
-	L = new Dir("L", '<', Utils.L[0], Utils.L[1]);
+	U = new Dir('^', Utils.U[0], Utils.U[1]),
+	R = new Dir('>', Utils.R[0], Utils.R[1]),
+	D = new Dir('v', Utils.D[0], Utils.D[1]),
+	L = new Dir('<', Utils.L[0], Utils.L[1]);
 	
-	protected final static List<Dir> DIRS = Collections.unmodifiableList(Arrays.asList(U, R, D, L));
+	protected final static Dir[] DIRS = new Dir[] { U, R, D, L };
 	
 	protected static class Pos {
 		protected int x;
@@ -124,26 +111,52 @@ public class Part1 extends Part {
 	}
 	
 	protected final static class Guard extends Pos {
-		List<Dir> dirs = new LinkedList<>(DIRS);
+		int nDir = 0;
 		
 		Guard(final int x, final int y) {
 			super(x, y);
 		}
 		
+		Dir dir() {
+			return DIRS[this.nDir];
+		}
+		
 		Pos nextPos() {
-			final Dir dir = this.dirs.get(0);
-			return new Pos(this.x + dir.dx, this.y + dir.dy);
+			return new Pos(this.x + dir().dx, this.y + dir().dy);
+		}
+		
+		Pos pos() {
+			return new Pos(this.x, this.y);
 		}
 		
 		void turn() {
-			final Dir dir = this.dirs.remove(0);
-			this.dirs.add(dir);
+			this.nDir = (this.nDir + 1) % 4;
 		}
 
 		void move() {
-			final Dir dir = this.dirs.get(0);
-			this.x += dir.dx;
-			this.y += dir.dy;
+			this.x += dir().dx;
+			this.y += dir().dy;
+		}
+
+		Guard copy() {
+			final Guard ret = new Guard(this.x, this.y);
+			ret.nDir = this.nDir;
+			return ret;
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + dir().c;
+		}
+		
+		@Override
+		public boolean equals(final Object obj) {
+			if (obj == this)
+				return true;
+			if (obj == null || !(obj instanceof Guard))
+				return false;
+			final Guard o = (Guard) obj;
+			return pos().equals(o.pos()) && dir() == o.dir();
 		}
 	}
 
