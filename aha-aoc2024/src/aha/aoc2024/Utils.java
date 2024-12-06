@@ -203,4 +203,17 @@ public class Utils {
 
 	public final static int[][] DIRS45 = new int[][] { N, NE, E, SE, S, SW, W, NW };
 	
+	/**
+	 * removes first T to back of list
+	 *
+	 * @param <T>
+	 * @param ts
+	 * @return first T of ts before cycling
+	 */
+	public final static <T> T cycle(final List<T> ts) {
+		final T ret = ts.remove(0);
+		ts.add(ret);
+		return ret;
+	}
+	
 }

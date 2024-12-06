@@ -2,6 +2,8 @@ package aha.aoc2024.day06;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,46 +13,76 @@ import aha.aoc2024.Utils.CharMap;
 import aha.aoc2024.Utils.Symbol;
 
 public class Part1 extends Part {
-
+	
 	@Override
 	public Part compute(final String file) {
 		final CharMap cm = new CharMap(Utils.readLines(this.dir + file));
-		
-		final Symbol g = cm.getAll('^').get(0);
-		
-		final List<int[]> dirs = new LinkedList<>();
-		dirs.add(Utils.U);
-		dirs.add(Utils.R);
-		dirs.add(Utils.D);
-		dirs.add(Utils.L);
 
-		int x = g.x, y = g.y;
-		int[] dir = bump(dirs);
-		
-		// initial solution was to write X's and then count X's when the guard left
-		// but for part2 more info is needed
+		final Symbol s = cm.getAll('^').get(0);
+
+		final Guard g = new Guard(s.x, s.y);
 
 		while (true) {
-			final int xnext = x + dir[0], ynext = y + dir[1];
-			final Character next = cm.getChar(xnext, ynext);
-			if (next == null)
+			final int[] next = g.nextPos();
+			final Character nextC = cm.getChar(next[0], next[1]);
+			if (nextC == null)
 				break;
-			else if (next == '#')
-				dir = bump(dirs);
+			else if (nextC == '#')
+				g.turn();
 			else {
-				x = xnext;
-				y = ynext;
-				cm.setChar(x, y, toChar(dir));
+				g.move();
+				doMore(g, nextC);
+				cm.setChar(g.x, g.y, toChar(g.dirs.get(0)));
 			}
 		}
-
-		for (final int[] aDir : dirs)
-			this.res += cm.getAll(toChar(aDir)).size();
-
+		
+		computeRes(cm);
+		
 		return this;
 	}
-	
-	private char toChar(final int[] dir) {
+
+	protected void computeRes(final CharMap cm) {
+		for (final int[] dir : DIRS)
+			this.res += cm.getAll(toChar(dir)).size();
+	}
+
+	protected void doMore(final Guard g, final char currentC) {
+		// extension for Part2
+	}
+
+	protected final static List<int[]> DIRS =
+			Collections.unmodifiableList(
+					Arrays.asList(
+							Utils.U, Utils.R, Utils.D, Utils.L));
+
+	protected final static class Guard {
+		int x;
+		int y;
+		List<int[]> dirs = new LinkedList<>(DIRS);
+
+		Guard(final int x, final int y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		int[] nextPos() {
+			final int[] dir = this.dirs.get(0);
+			return new int[] { this.x + dir[0], this.y + dir[1] };
+		}
+
+		void turn() {
+			final int[] dir = this.dirs.remove(0);
+			this.dirs.add(dir);
+		}
+		
+		void move() {
+			final int[] dir = this.dirs.get(0);
+			this.x += dir[0];
+			this.y += dir[1];
+		}
+	}
+
+	protected final static char toChar(final int[] dir) {
 		if (dir == Utils.U)
 			return '^';
 		else if (dir == Utils.R)
@@ -61,21 +93,15 @@ public class Part1 extends Part {
 			return '<';
 		return '?'; // won't happen
 	}
-
-	private <T> T bump(final List<T> dirs) {
-		final T ret = dirs.remove(0);
-		dirs.add(ret);
-		return ret;
-	}
 	
 	@Override
 	public void aTest() {
 		assertEquals(41, new Part1().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
 		assertEquals(4656, new Part1().compute("input.txt").res);
 	}
-	
+
 }
