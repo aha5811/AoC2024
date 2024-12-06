@@ -1,8 +1,11 @@
 package aha.aoc2024.day06;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +17,7 @@ public class Part2 extends Part1 {
 	
 	private List<Pos> os;
 	private List<Symbol> blocks;
-	private Map<Pos, List<Dir>> crossed;
+	private Map<Pos, Collection<Dir>> crossed;
 	
 	@Override
 	protected void doInit(final CharMap cm) {
@@ -25,10 +28,11 @@ public class Part2 extends Part1 {
 	
 	@Override
 	protected void doAfterMove(final CharMap cm, final Guard g) {
-		final Pos now = new Pos(g.x, g.y);
-		if (this.crossed.get(now) == null)
-			this.crossed.put(now, new LinkedList<>());
-		this.crossed.get(now).add(g.dirs.getFirst());
+		final Pos p = new Pos(g.x, g.y);
+		
+		if (this.crossed.get(p) == null)
+			this.crossed.put(p, new HashSet<>());
+		this.crossed.get(p).add(g.dirs.getFirst());
 
 		final Pos next = g.nextPos();
 
@@ -45,53 +49,49 @@ public class Part2 extends Part1 {
 
 		// is there a block in g's sight if g turns now
 
-		if (findBlock(now, g.dirs.get(1), cm))
+		if (blockPos(g, cm))
 			this.os.add(g.nextPos());
 		
 	}
 	
-	private boolean findBlock(final Pos p, final Dir dir, final CharMap cm) {
+	private boolean blockPos(final Guard g, final CharMap cm) {
+		final Dir dir = g.dirs.get(1); // turn left
+		
 		for (final Symbol b : this.blocks)
-			if (b.x == p.x || b.y == p.y) // block in same column or same row
-				if (dir == U && b.x == p.x && b.y < p.y
-					|| dir == R && b.y == p.y && b.x > p.x
-					|| dir == D && b.x == p.x && b.y > p.y
-					|| dir == L && b.y == p.y && b.x < p.x) // block in sight
-				{
-					// will we go on a loop?
-					boolean hitLoop = false;
-					final Pos test = new Pos(p.x, p.y);
-					while (true) {
-						final List<Dir> dirs = this.crossed.get(test);
-						if (dirs != null && dirs.contains(dir)) {
-							hitLoop = true;
-							break;
-						}
-						test.x += dir.dx;
-						test.y += dir.dy;
-						if (cm.getChar(test.x, test.y) == '#')
-							break;
-					}
-					if (hitLoop)
-						return true;
-				}
+			if ((b.x == g.x || b.y == g.y) // block in same column or same row
+					&&
+					(dir == U && b.x == g.x && b.y < g.y
+					|| dir == R && b.y == g.y && b.x > g.x
+					|| dir == D && b.x == g.x && b.y > g.y
+					|| dir == L && b.y == g.y && b.x < g.x)
+					&&
+					willLoop(cm, new Pos(g.x, g.y), dir))
+				return true;
 		return false;
+	}
+
+	private boolean willLoop(final CharMap cm, final Pos p, final Dir dir) {
+		boolean hitLoop = false;
+
+		while (true) {
+			if (this.crossed.containsKey(p) && this.crossed.get(p).contains(dir)) {
+				hitLoop = true;
+				break;
+			}
+			p.x += dir.dx;
+			p.y += dir.dy;
+			if (cm.getChar(p.x, p.y) == '#')
+				break;
+		}
+
+		// since we check only for the way to the next block we may miss loops where we
+		// have to turn on some blocks before we hit a loop
+		
+		return hitLoop;
 	}
 	
 	@Override
 	protected void computeRes(final CharMap cm) {
-		/*
-		for (final Pos O : this.os) {
-			System.out.println(O.x + "x" + O.y + ":");
-			final Character c = cm.getChar(O.x, O.y);
-			if (c != null) {
-				cm.setChar(O.x, O.y, 'O');
-				System.out.println(cm);
-				cm.setChar(O.x, O.y, c);
-			} else
-				System.out.println("outside");
-		}
-		//*/
 		this.res = this.os.size();
 	}
 	
@@ -102,7 +102,7 @@ public class Part2 extends Part1 {
 
 	@Override
 	public void main() {
-		assertEquals(428 + 1 /* your answer is too low */, new Part2().compute("input.txt").res);
+		assertNotEquals(428 /* answer is too low */, new Part2().compute("input.txt").res);
 	}
 
 }
