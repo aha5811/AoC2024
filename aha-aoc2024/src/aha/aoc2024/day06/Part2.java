@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 
 import aha.aoc2024.Utils.CharMap;
@@ -23,53 +22,56 @@ public class Part2 extends Part1 {
 
 	@Override
 	protected void doAfterMove(final CharMap cm, final Guard g) {
-
-		final Pos potObsPos = g.nextPos();
+		g.trace.add(g.copy());
 		
-		if (this.obs.contains(potObsPos))
+		final Pos potObs = g.nextPos();
+		
+		if (this.obs.contains(potObs))
 			return;
 		
-		final Character c = cm.getChar(potObsPos.x, potObsPos.y);
+		final Character c = cm.getChar(potObs.x, potObs.y);
 		if (c == null || c == '#') // outside or there is already a block
 			return;
 
-		if (goodObs(cm, potObsPos, g))
-			this.obs.add(potObsPos);
+		if (goodObs(cm, potObs, g))
+			this.obs.add(potObs);
 
 	}
 	
 	private boolean goodObs(final CharMap cm, final Pos obs, final Guard g) {
 		final Guard testG = g.copy();
 		testG.turn();
-		return hasBlockInSight(testG) && isOnLoop(cm, obs, testG);
+		return hasBlockInSight(testG) && willLoop(cm, obs, testG);
 	}
 	
 	private boolean hasBlockInSight(final Guard g) {
 		final Dir dir = g.dir();
 		for (final Symbol b : this.blocks)
-			if ((b.x == g.x || b.y == g.y) // block in same column or same row
-					&& (dir == U && b.x == g.x && b.y < g.y
-					|| dir == R && b.y == g.y && b.x > g.x
-					|| dir == D && b.x == g.x && b.y > g.y
-					|| dir == L && b.y == g.y && b.x < g.x)) // block in sight
+			if ((b.x == g.x() || b.y == g.y()) // block in same column or same row
+				&& (dir == U && b.x == g.x() && b.y < g.y()
+					|| dir == R && b.y == g.y() && b.x > g.x()
+					|| dir == D && b.x == g.x() && b.y > g.y()
+					|| dir == L && b.y == g.y() && b.x < g.x())) // block in sight
 				return true;
 		return false;
 	}
 	
-	private boolean isOnLoop(final CharMap cm, final Pos obs, final Guard g) {
+	private boolean willLoop(final CharMap cm, final Pos obs, final Guard g) {
 		boolean ret = false;
 
-		final List<Guard> trace = new LinkedList<>();
-		
+		// System.out.print("checked for " + g + " with obs @ " + obs + ": ");
+
+		// final int gsize = g.trace.size();
+
 		while (true) {
 
 			g.move();
-			
-			if (trace.contains(g)) {
+
+			if (g.trace.contains(g)) {
 				ret = true;
 				break;
 			} else
-				trace.add(g.copy());
+				g.trace.add(g.copy());
 			
 			final Pos next = g.nextPos();
 			if (cm.isOutside(next.x, next.y))
@@ -78,6 +80,8 @@ public class Part2 extends Part1 {
 				g.turn();
 
 		}
+		
+		// System.out.println(ret + " after " + gsize + "+" + (g.trace.size() - gsize) + " steps");
 
 		return ret;
 	}
@@ -97,7 +101,7 @@ public class Part2 extends Part1 {
 	
 	@Override
 	public void main() {
-		// assertEquals(1512, new Part2().compute("input.txt").res); // 13s
+		assertEquals(1548, new Part2().compute("input.txt").res); // 254s
 	}
 	
 }

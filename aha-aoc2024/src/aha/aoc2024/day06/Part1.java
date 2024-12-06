@@ -2,6 +2,9 @@ package aha.aoc2024.day06;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 import aha.aoc2024.Utils.CharMap;
@@ -44,7 +47,7 @@ public class Part1 extends Part {
 	}
 	
 	protected void doAfterMove(final CharMap cm, final Guard g) {
-		cm.setChar(g.x, g.y, 'X');
+		cm.setChar(g.x(), g.y(), 'X');
 	}
 	
 	protected void computeRes(final CharMap cm) {
@@ -110,23 +113,23 @@ public class Part1 extends Part {
 		}
 	}
 	
-	protected final static class Guard extends Pos {
+	protected final static class Guard {
+		Pos p;
 		int nDir = 0;
+
+		List<Guard> trace = new LinkedList<>();
 		
 		Guard(final int x, final int y) {
-			super(x, y);
+			this.p = new Pos(x, y);
 		}
 		
-		Dir dir() {
-			return DIRS[this.nDir];
-		}
+		int x() { return this.p.x; }
+		int y() { return this.p.y; }
+		Dir dir() { return DIRS[this.nDir]; }
+		Pos pos() { return new Pos(this.p.x, this.p.y); }
 		
 		Pos nextPos() {
-			return new Pos(this.x + dir().dx, this.y + dir().dy);
-		}
-		
-		Pos pos() {
-			return new Pos(this.x, this.y);
+			return new Pos(x() + dir().dx, y() + dir().dy);
 		}
 		
 		void turn() {
@@ -134,19 +137,20 @@ public class Part1 extends Part {
 		}
 
 		void move() {
-			this.x += dir().dx;
-			this.y += dir().dy;
+			this.p.x += dir().dx;
+			this.p.y += dir().dy;
 		}
 
 		Guard copy() {
-			final Guard ret = new Guard(this.x, this.y);
+			final Guard ret = new Guard(x(), y());
 			ret.nDir = this.nDir;
+			ret.trace.addAll(this.trace);
 			return ret;
 		}
 
 		@Override
 		public String toString() {
-			return super.toString() + dir().c;
+			return this.p.toString() + dir().c;
 		}
 		
 		@Override
