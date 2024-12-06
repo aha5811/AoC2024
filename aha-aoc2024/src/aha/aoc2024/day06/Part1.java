@@ -18,80 +18,118 @@ public class Part1 extends Part {
 	public Part compute(final String file) {
 		final CharMap cm = new CharMap(Utils.readLines(this.dir + file));
 
+		doInit(cm);
+
 		final Symbol s = cm.getAll('^').get(0);
 
 		final Guard g = new Guard(s.x, s.y);
 
 		while (true) {
-			final int[] next = g.nextPos();
-			final Character nextC = cm.getChar(next[0], next[1]);
+			final Pos next = g.nextPos();
+			final Character nextC = cm.getChar(next.x, next.y);
 			if (nextC == null)
 				break;
 			else if (nextC == '#')
 				g.turn();
 			else {
 				g.move();
-				doMore(g, nextC);
-				cm.setChar(g.x, g.y, toChar(g.dirs.get(0)));
+				doAfterMove(cm, g);
 			}
 		}
 		
 		computeRes(cm);
+
+		// System.out.println(cm);
 		
 		return this;
 	}
 
-	protected void computeRes(final CharMap cm) {
-		for (final int[] dir : DIRS)
-			this.res += cm.getAll(toChar(dir)).size();
-	}
-
-	protected void doMore(final Guard g, final char currentC) {
+	protected void doInit(final CharMap cm) {
 		// extension for Part2
 	}
 
-	protected final static List<int[]> DIRS =
-			Collections.unmodifiableList(
-					Arrays.asList(
-							Utils.U, Utils.R, Utils.D, Utils.L));
+	protected void doAfterMove(final CharMap cm, final Guard g) {
+		cm.setChar(g.x, g.y, 'X');
+	}
 
-	protected final static class Guard {
-		int x;
-		int y;
-		List<int[]> dirs = new LinkedList<>(DIRS);
+	protected void computeRes(final CharMap cm) {
+		this.res = cm.getAll('X').size();
+	}
 
-		Guard(final int x, final int y) {
+	protected static class Dir {
+		String name;
+		char c;
+		int dx;
+		int dy;
+
+		public Dir(final String name, final char c, final int dx, final int dy) {
+			this.name = name;
+			this.c = c;
+			this.dx = dx;
+			this.dy = dy;
+		}
+	}
+	
+	protected final static Dir
+	U = new Dir("U", '^', Utils.U[0], Utils.U[1]),
+	R = new Dir("R", '>', Utils.R[0], Utils.R[1]),
+	D = new Dir("D", 'v', Utils.D[0], Utils.D[1]),
+	L = new Dir("L", '<', Utils.L[0], Utils.L[1]);
+
+	protected final static List<Dir> DIRS = Collections.unmodifiableList(Arrays.asList(U, R, D, L));
+
+	protected static class Pos {
+		protected int x;
+		protected int y;
+		
+		public Pos(final int x, final int y) {
 			this.x = x;
 			this.y = y;
 		}
 
-		int[] nextPos() {
-			final int[] dir = this.dirs.get(0);
-			return new int[] { this.x + dir[0], this.y + dir[1] };
+		@Override
+		public boolean equals(final Object obj) {
+			if (obj == this)
+				return true;
+			if (obj == null || !(obj instanceof Pos))
+				return false;
+			final Pos o = (Pos) obj;
+			return this.x == o.x && this.y == o.y;
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + this.x + "," + this.y + ")";
+		}
+		
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+	}
+
+	protected final static class Guard extends Pos {
+		List<Dir> dirs = new LinkedList<>(DIRS);
+
+		Guard(final int x, final int y) {
+			super(x, y);
+		}
+
+		Pos nextPos() {
+			final Dir dir = this.dirs.get(0);
+			return new Pos(this.x + dir.dx, this.y + dir.dy);
 		}
 
 		void turn() {
-			final int[] dir = this.dirs.remove(0);
+			final Dir dir = this.dirs.remove(0);
 			this.dirs.add(dir);
 		}
 		
 		void move() {
-			final int[] dir = this.dirs.get(0);
-			this.x += dir[0];
-			this.y += dir[1];
+			final Dir dir = this.dirs.get(0);
+			this.x += dir.dx;
+			this.y += dir.dy;
 		}
-	}
-
-	protected final static char toChar(final int[] dir) {
-		if (dir == Utils.U)
-			return '^';
-		else if (dir == Utils.R)
-			return '>';
-		else if (dir == Utils.D)
-			return 'v';
-		else if (dir == Utils.L)
-			return '<';
-		return '?'; // won't happen
 	}
 	
 	@Override
