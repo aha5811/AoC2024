@@ -6,7 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -88,6 +91,14 @@ public class Utils {
 
 		public CharMap(final String file) {
 			this(Utils.readLines(file));
+		}
+		
+		public List<Character> getChars() {
+			final Collection<Character> chars = new HashSet<>();
+			for (int x = 0; x < this.w; x++)
+				for (int y = 0; y < this.h; y++)
+					chars.add(this.chars[x][y]);
+			return new LinkedList<>(chars);
 		}
 
 		public boolean isOutside(final int x, final int y) {
@@ -216,4 +227,34 @@ public class Utils {
 		return ret;
 	}
 
+	public static class Pos {
+		public int x;
+		public int y;
+
+		public Pos(final int x, final int y) {
+			this.x = x;
+			this.y = y;
+		}
+		
+		@Override
+		public boolean equals(final Object obj) {
+			if (obj == this)
+				return true;
+			if (obj == null || !(obj instanceof Pos))
+				return false;
+			final Pos o = (Pos) obj;
+			return this.x == o.x && this.y == o.y;
+		}
+
+		@Override
+		public String toString() {
+			return "(" + this.x + "," + this.y + ")";
+		}
+
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+	}
+	
 }
