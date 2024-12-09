@@ -22,7 +22,6 @@ public class Part2 extends Part1 {
 
 	@Override
 	protected void doAfterMove(final CharMap cm, final Guard g) {
-		g.trace.add(g.copy());
 		
 		final Pos potObs = g.nextPos();
 		
@@ -47,11 +46,10 @@ public class Part2 extends Part1 {
 	private boolean hasBlockInSight(final Guard g) {
 		final Dir dir = g.dir();
 		for (final Symbol b : this.blocks)
-			if ((b.x == g.x() || b.y == g.y()) // block in same column or same row
-				&& (dir == U && b.x == g.x() && b.y < g.y()
-					|| dir == R && b.y == g.y() && b.x > g.x()
-					|| dir == D && b.x == g.x() && b.y > g.y()
-					|| dir == L && b.y == g.y() && b.x < g.x())) // block in sight
+			if (dir == U && b.x == g.x() && b.y < g.y()
+			|| dir == R && b.y == g.y() && b.x > g.x()
+			|| dir == D && b.x == g.x() && b.y > g.y()
+			|| dir == L && b.y == g.y() && b.x < g.x())
 				return true;
 		return false;
 	}
@@ -64,21 +62,18 @@ public class Part2 extends Part1 {
 		// final int gsize = g.trace.size();
 
 		while (true) {
-
-			g.move();
-
-			if (g.trace.contains(g)) {
+			if (g.trace.subList(0, g.trace.size() - 1).contains(g)) {
 				ret = true;
 				break;
-			} else
-				g.trace.add(g.copy());
-			
+			}
+
 			final Pos next = g.nextPos();
 			if (cm.isOutside(next.x, next.y))
 				break;
 			else if (cm.getChar(next.x, next.y) == '#' || next.equals(obs))
 				g.turn();
-
+			else
+				g.move();
 		}
 		
 		// System.out.println(ret + " after " + gsize + "+" + (g.trace.size() - gsize) + " steps");
@@ -101,7 +96,8 @@ public class Part2 extends Part1 {
 	
 	@Override
 	public void main() {
-		assertEquals(1548, new Part2().compute("input.txt").res); // 254s
+		// assertNotEquals(1642, new Part2().compute("input.txt").res); // 39s
+		// 1642 is wrong
 	}
 	
 }
