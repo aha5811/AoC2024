@@ -22,7 +22,7 @@ public class Part2 extends Part1 {
 	}
 	
 	@Override
-	protected void doAfterMove(final CharMap cm, final Guard g) {
+	protected void doAfterChange(final CharMap cm, final Guard g) {
 
 		final Pos potObs = g.nextPos();
 
@@ -33,13 +33,23 @@ public class Part2 extends Part1 {
 		if (c == null || c == '#') // outside or there is already a block
 			return;
 		
+		if (visited(potObs, g))
+			return;
+		
 		if (goodObs(cm, potObs, g))
 			this.obs.add(potObs);
 		
 	}
-
+	
+	private boolean visited(final Pos obs, final Guard g) {
+		for (final Guard ag : g.trace)
+			if (ag.pos().equals(obs))
+				return true;
+		return false;
+	}
+	
 	private boolean goodObs(final CharMap cm, final Pos obs, final Guard g) {
-		final Guard testG = g.copy();
+		final Guard testG = g.copy(); // speedup possible by not copying the trace
 		testG.turn();
 		return hasBlockInSight(testG) && willLoop(cm, obs, testG);
 	}
@@ -48,21 +58,18 @@ public class Part2 extends Part1 {
 		final Dir dir = g.dir();
 		for (final Symbol b : this.blocks)
 			if (dir == U && b.x == g.x() && b.y < g.y()
-			|| dir == R && b.y == g.y() && b.x > g.x()
-			|| dir == D && b.x == g.x() && b.y > g.y()
-			|| dir == L && b.y == g.y() && b.x < g.x())
+				|| dir == R && b.y == g.y() && b.x > g.x()
+				|| dir == D && b.x == g.x() && b.y > g.y()
+				|| dir == L && b.y == g.y() && b.x < g.x())
 				return true;
 		return false;
 	}
 
-	private boolean willLoop(final CharMap cm, final Pos obs, final Guard g) {
+	private boolean willLoop(final CharMap cm, final Pos obsPos, final Guard g) {
 		boolean ret = false;
 		
-		// System.out.print("checked for " + g + " with obs @ " + obs + ": ");
-		
-		// final int gsize = g.trace.size();
-		
 		while (true) {
+
 			if (g.trace.subList(0, g.trace.size() - 1).contains(g)) {
 				ret = true;
 				break;
@@ -71,14 +78,12 @@ public class Part2 extends Part1 {
 			final Pos next = g.nextPos();
 			if (cm.isOutside(next.x, next.y))
 				break;
-			else if (cm.getChar(next.x, next.y) == '#' || next.equals(obs))
+			else if (cm.getChar(next.x, next.y) == '#' || next.equals(obsPos))
 				g.turn();
 			else
 				g.move();
 		}
 
-		// System.out.println(ret + " after " + gsize + "+" + (g.trace.size() - gsize) + " steps");
-		
 		return ret;
 	}
 	
@@ -87,9 +92,6 @@ public class Part2 extends Part1 {
 		this.res = this.obs.size();
 	}
 	
-	// example
-	// (3,6), (6,7), (7,7), (1,8), (3,8), (7,9)
-	
 	@Override
 	public void aTest() {
 		assertEquals(6, new Part2().compute("test.txt").res);
@@ -97,8 +99,7 @@ public class Part2 extends Part1 {
 
 	@Override
 	public void main() {
-		// assertNotEquals(1642, new Part2().compute("input.txt").res); // 39s
-		// 1642 is wrong
+		assertEquals(1575, new Part2().compute("input.txt").res); // 39s
 	}
 
 }

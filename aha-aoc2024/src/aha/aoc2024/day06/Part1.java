@@ -23,18 +23,17 @@ public class Part1 extends Part {
 		
 		final Guard g = new Guard(s.x, s.y);
 		
-		doAfterMove(cm, g);
-		
 		while (true) {
 			final Pos next = g.nextPos();
 			final Character nextC = cm.getChar(next.x, next.y);
 			if (nextC == null)
 				break;
-			else if (nextC == '#')
+			else if (nextC == '#') {
 				g.turn();
-			else {
+				doAfterChange(cm, g);
+			} else {
 				g.move();
-				doAfterMove(cm, g);
+				doAfterChange(cm, g);
 			}
 		}
 
@@ -47,7 +46,7 @@ public class Part1 extends Part {
 		// extension for Part2
 	}
 	
-	protected void doAfterMove(final CharMap cm, final Guard g) {
+	protected void doAfterChange(final CharMap cm, final Guard g) {
 		cm.setChar(g.x(), g.y(), 'X');
 	}
 	
