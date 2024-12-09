@@ -11,49 +11,45 @@ import aha.aoc2024.Utils.Pos;
 import aha.aoc2024.Utils.Symbol;
 
 public class Part2 extends Part1 {
-	
+
 	private Collection<Pos> obs;
 	private List<Symbol> blocks;
-	
+
 	@Override
 	protected void doInit(final CharMap cm) {
 		this.obs = new HashSet<>();
 		this.blocks = cm.getAll('#');
 	}
-	
+
 	@Override
 	protected void doAfterChange(final CharMap cm, final Guard g) {
-
+		
 		final Pos potObs = g.nextPos();
-
+		
 		if (this.obs.contains(potObs))
 			return;
-
+		
 		final Character c = cm.getChar(potObs.x, potObs.y);
 		if (c == null || c == '#') // outside or there is already a block
 			return;
-		
-		if (visited(potObs, g))
+
+		if (g.visited(potObs))
 			return;
-		
+
 		if (goodObs(cm, potObs, g))
 			this.obs.add(potObs);
-		
-	}
-	
-	private boolean visited(final Pos obs, final Guard g) {
-		for (final Guard ag : g.trace)
-			if (ag.pos().equals(obs))
-				return true;
-		return false;
-	}
-	
-	private boolean goodObs(final CharMap cm, final Pos obs, final Guard g) {
-		final Guard testG = g.copy(); // speedup possible by not copying the trace
-		testG.turn();
-		return hasBlockInSight(testG) && willLoop(cm, obs, testG);
+
 	}
 
+	// example
+	// (3,6), (6,7), (7,7), (1,8), (3,8), (7,9)
+
+	private boolean goodObs(final CharMap cm, final Pos obs, final Guard g) {
+		final Guard gTmp = g.copy();
+		gTmp.turn();
+		return hasBlockInSight(gTmp) && willLoop(cm, obs, gTmp);
+	}
+	
 	private boolean hasBlockInSight(final Guard g) {
 		final Dir dir = g.dir();
 		for (final Symbol b : this.blocks)
@@ -64,17 +60,17 @@ public class Part2 extends Part1 {
 				return true;
 		return false;
 	}
-
+	
 	private boolean willLoop(final CharMap cm, final Pos obsPos, final Guard g) {
 		boolean ret = false;
-		
-		while (true) {
 
-			if (g.trace.subList(0, g.trace.size() - 1).contains(g)) {
+		while (true) {
+			
+			if (g.isLoop()) {
 				ret = true;
 				break;
 			}
-			
+
 			final Pos next = g.nextPos();
 			if (cm.isOutside(next.x, next.y))
 				break;
@@ -83,10 +79,10 @@ public class Part2 extends Part1 {
 			else
 				g.move();
 		}
-
+		
 		return ret;
 	}
-	
+
 	@Override
 	protected void computeRes(final CharMap cm) {
 		this.res = this.obs.size();
@@ -96,10 +92,10 @@ public class Part2 extends Part1 {
 	public void aTest() {
 		assertEquals(6, new Part2().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
 		assertEquals(1575, new Part2().compute("input.txt").res); // 39s
 	}
-
+	
 }

@@ -25,10 +25,9 @@ public class Part1 extends Part {
 		
 		while (true) {
 			final Pos next = g.nextPos();
-			final Character nextC = cm.getChar(next.x, next.y);
-			if (nextC == null)
+			if (cm.isOutside(next.x, next.y))
 				break;
-			else if (nextC == '#') {
+			else if (cm.getChar(next.x, next.y) == '#') {
 				g.turn();
 				doAfterChange(cm, g);
 			} else {
@@ -84,10 +83,14 @@ public class Part1 extends Part {
 	protected final static Dir[] DIRS = new Dir[] { U, R, D, L };
 	
 	protected final static class Guard {
-		Pos p;
-		int nDir = 0;
 
-		List<Guard> trace = new LinkedList<>();
+		private final Pos p;
+		private int nDir = 0;
+
+		/**
+		 * for Part2
+		 */
+		private final List<Guard> trace = new LinkedList<>();
 		
 		Guard(final int x, final int y) {
 			this.p = new Pos(x, y);
@@ -96,29 +99,38 @@ public class Part1 extends Part {
 		int x() { return this.p.x; }
 		int y() { return this.p.y; }
 		Dir dir() { return DIRS[this.nDir]; }
-		Pos pos() { return new Pos(this.p.x, this.p.y); }
+
+		private Pos pos() {
+			return new Pos(this.p.x, this.p.y);
+		}
 		
 		Pos nextPos() {
 			return new Pos(x() + dir().dx, y() + dir().dy);
 		}
-		
+
 		void turn() {
 			this.nDir = (this.nDir + 1) % 4;
-			this.trace.add(copyNoTrace());
+			trace();
 		}
 
 		void move() {
 			this.p.x += dir().dx;
 			this.p.y += dir().dy;
-			this.trace.add(copyNoTrace());
-		}
-
-		Guard copyNoTrace() {
-			final Guard ret = new Guard(x(), y());
-			ret.nDir = this.nDir;
-			return ret;
+			trace();
 		}
 		
+		/**
+		 * for Part2
+		 */
+		private void trace() {
+			final Guard g = new Guard(x(), y());
+			g.nDir = this.nDir;
+			this.trace.add(g);
+		}
+		
+		/**
+		 * for Part2
+		 */
 		Guard copy() {
 			final Guard ret = new Guard(x(), y());
 			ret.nDir = this.nDir;
@@ -126,11 +138,31 @@ public class Part1 extends Part {
 			return ret;
 		}
 
+		/**
+		 * for Part2
+		 */
+		boolean visited(final Pos obs) {
+			for (final Guard g : this.trace)
+				if (g.pos().equals(obs))
+					return true;
+			return false;
+		}
+		
+		/**
+		 * for Part2
+		 */
+		boolean isLoop() {
+			return this.trace.subList(0, this.trace.size() - 1).contains(this);
+		}
+
 		@Override
 		public String toString() {
 			return this.p.toString() + dir().c;
 		}
 		
+		/**
+		 * for Part2
+		 */
 		@Override
 		public boolean equals(final Object obj) {
 			if (obj == this)
