@@ -7,7 +7,9 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Part2 extends Part1 {
-
+	
+	// https://adventofcode.com/2024/day/5#part2
+	
 	@Override
 	protected void computeForPages(final List<Rule> rules, final List<Integer> pages) {
 		if (!satisifes(pages, rules)) {
@@ -27,15 +29,15 @@ public class Part2 extends Part1 {
 			this.res += getMiddle(pages);
 		}
 	}
-
+	
 	@Override
 	public void aTest() {
 		assertEquals(123, new Part2().compute("test.txt").res);
 	}
-	
+
 	@Override
 	public void main() {
 		assertEquals(5564, new Part2().compute("input.txt").res);
 	}
-	
+
 }

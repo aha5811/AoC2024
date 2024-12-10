@@ -8,7 +8,9 @@ import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 
 public class Part1 extends Part {
-
+	
+	// https://adventofcode.com/2024/day/2
+	
 	@Override
 	public Part compute(final String file) {
 		this.res =
@@ -17,13 +19,13 @@ public class Part1 extends Part {
 				.count();
 		return this;
 	}
-	
+
 	protected boolean checkSafe(final List<Integer> ns) {
 		return _checkSafeMod(ns);
 	}
-	
+
 	public final static int MIN_DIFF = 1, MAX_DIFF = 3;
-	
+
 	protected final boolean _checkSafeMod(final List<Integer> ns) {
 		final boolean inc = ns.get(1) - ns.get(0) > 0; // 1 -> 2 increasing?
 		int n0 = ns.remove(0);
@@ -35,15 +37,15 @@ public class Part1 extends Part {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(2, new Part1().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
 		assertEquals(564, new Part1().compute("input.txt").res);
 	}
-	
+
 }

@@ -9,6 +9,8 @@ import aha.aoc2024.Utils.Symbol;
 
 public class Part1 extends Part {
 
+	// https://adventofcode.com/2024/day/4
+
 	@Override
 	public Part compute(final String file) {
 		computeFor(new CharMap(this.dir + file));

@@ -9,9 +9,11 @@ import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 
 public class Part2 extends Part1 {
-
+	
+	// https://adventofcode.com/2024/day/3#part2
+	
 	private final static Pattern P = Pattern.compile(MUL_OP + "|do(?:n't)?\\(\\)");
-
+	
 	@Override
 	public Part compute(final String file) {
 		boolean ignoreMul = false;
@@ -27,15 +29,15 @@ public class Part2 extends Part1 {
 		}
 		return this;
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(48, new Part2().compute("test2.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
 		assertEquals(56275602, new Part2().compute("input.txt").res);
 	}
-
+	
 }
