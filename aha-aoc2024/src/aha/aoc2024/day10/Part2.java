@@ -2,16 +2,39 @@ package aha.aoc2024.day10;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import aha.aoc2024.Utils;
+
 public class Part2 extends Part1 {
+
+	@Override
+	protected void computeRating(final DigiMap dm, final int x, final int y) {
+		this.res += getTHC(dm, x, y);
+	}
+
+	private int getTHC(final DigiMap dm, final int x, final int y) {
+
+		final int here = dm.getInt(x, y);
+
+		if (here == 9)
+			return 1;
+
+		int ret = 0;
+		for (final int[] d : Utils.DIRS90) {
+			final int xd = x + d[0], yd = y + d[1];
+			if (!dm.isOutside(xd, yd) && dm.getInt(xd, yd) == here + 1)
+				ret += getTHC(dm, xd, yd);
+		}
+		return ret;
+	}
 	
 	@Override
 	public void aTest() {
-		assertEquals(0, new Part2().compute("test.txt").res);
+		assertEquals(81, new Part2().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
-		// assertEquals(0, new Part2().compute("input.txt").res);
+		assertEquals(1925, new Part2().compute("input.txt").res);
 	}
-
+	
 }
