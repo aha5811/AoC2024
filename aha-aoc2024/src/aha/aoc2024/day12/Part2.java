@@ -10,32 +10,32 @@ import aha.aoc2024.Utils.Pos;
 import aha.aoc2024.Utils.Symbol;
 
 public class Part2 extends Part1 {
-	
+
 	// https://adventofcode.com/2024/day/12#part2
-	
+
 	@Override
 	protected RegFac getRegFac() { return s -> new Region2(s); }
-	
+
 	@Override
 	protected int getFenceCost(final Region r) {
 		final int b = ((Region2) r).getSides(), s = r.size(), total = s * b;
 		// System.out.println(r.c + " " + s + " * " + b + " = " + total);
 		return total;
 	}
-
-	static class OutPos extends Pos {
+	
+	static class Edge extends Pos {
 		int[] dir;
-		
-		public OutPos(final int x, final int y, final int[] dir) {
+
+		public Edge(final int x, final int y, final int[] dir) {
 			super(x, y);
 			this.dir = dir;
 		}
-		
+
 		@Override
 		public String toString() {
 			return super.toString() + toString(this.dir);
 		}
-
+		
 		private String toString(final int[] dir) {
 			if (dir == Utils.U)
 				return "^";
@@ -47,87 +47,104 @@ public class Part2 extends Part1 {
 				return "<";
 			return "?";
 		}
-
+		
 		@Override
 		public boolean equals(final Object obj) {
-			if (obj == null || !(obj instanceof OutPos))
+			if (obj == null || !(obj instanceof Edge))
 				return false;
 			if (obj == this)
 				return true;
-			final OutPos other = (OutPos) obj;
+			final Edge other = (Edge) obj;
 			return other.x == this.x && other.y == this.y && other.dir == this.dir;
 		}
 	}
-
+	
 	static class Region2 extends Region {
-		
+
 		public Region2(final Symbol s) {
 			super(s);
 		}
-
+		
 		int getSides() {
-			
-			final Collection<OutPos> ops = new HashSet<>();
+
+			// get all outer edges (as Pos with direction facing outward)
+			final Collection<Edge> edges = new HashSet<>();
 			{
 				final Collection<Pos> ps = new HashSet<>();
 				for (final Pos p : this.ss)
 					ps.add(new Pos(p.x, p.y));
-
+				
 				for (final Pos p : ps)
 					for (final int[] dir : Utils.DIRS90)
 						if (!ps.contains(new Pos(p.x + dir[0], p.y + dir[1])))
-							ops.add(new OutPos(p.x, p.y, dir));
+							edges.add(new Edge(p.x, p.y, dir));
 			}
-
+			
 			int ret = 0;
-			while (!ops.isEmpty())
-				ret += removeRing(ops);
+			while (!edges.isEmpty())
+				ret += removeRing(edges);
 			return ret;
 		}
-		
-		private int removeRing(final Collection<OutPos> ops) {
-			int ret = 0;
 
-			final OutPos start = ops.iterator().next();
+		private int removeRing(final Collection<Edge> edges) {
+
+			// the sides are the amount of turns needed to walk the edge
 			
-			OutPos curr = start;
-			int[] onward = turnRight(start.dir);
+			int turns = 0;
+			
+			// edges may contain many rings, one for the outside and one for any hole
 
-			while (!ops.isEmpty()) {
-				ops.remove(curr);
-				
-				final OutPos
-				nextOn = new OutPos(curr.x + onward[0], curr.y + onward[1], curr.dir),
+			// we start with any edge
+			// for each step
+			// - create next edges for current direction, left turn, right turn
+			// - if one of next edges is start -> end (if turn, inc turns)
+			// - else
+			// .. check which of next is in collection -> goto next (if turn, inc turns)
+			// while moving the "used" edges are removed,
+			// so in next method call another ring gets removed
+
+			final Edge start = edges.iterator().next();
+
+			Edge e = start;
+			
+			while (true) {
+				edges.remove(e);
+
+				int[] onward = turnRight(e.dir);
+
+				final Edge
+				nextOnward = new Edge(e.x + onward[0], e.y + onward[1], e.dir),
+				nextRight = new Edge(e.x, e.y, onward),
 				nextLeft =
-				new OutPos(
-						curr.x + onward[0] + curr.dir[0],
-						curr.y + onward[1] + curr.dir[1],
-						turnLeft(curr.dir)),
-				nextRight = new OutPos(curr.x, curr.y, onward);
-
-				if (nextOn.equals(start))
+				new Edge(
+						e.x + onward[0] + e.dir[0],
+						e.y + onward[1] + e.dir[1],
+						turnLeft(e.dir)
+						);
+				
+				if (nextOnward.equals(start))
 					break;
-				else if (nextLeft.equals(start) || nextRight.equals(start)) {
-					ret++;
+				else if (nextRight.equals(start) || nextLeft.equals(start)) {
+					turns++;
 					break;
-				} else if (ops.contains(nextOn))
-					curr = nextOn;
-				else if (ops.contains(nextLeft)) {
-					curr = nextLeft;
-					onward = turnLeft(onward);
-					ret++;
-				} else if (ops.contains(nextRight)) {
-					curr = nextRight;
+				} else if (edges.contains(nextOnward))
+					e = nextOnward;
+				else if (edges.contains(nextRight)) {
+					e = nextRight;
 					onward = turnRight(onward);
-					ret++;
+					turns++;
+				} else if (edges.contains(nextLeft)) {
+					e = nextLeft;
+					onward = turnLeft(onward);
+					turns++;
 				}
 			}
-
-			return ret;
+			
+			return turns;
 		}
-		
+
 	}
-	
+
 	static int[] turnRight(final int[] dir) {
 		if (dir == Utils.U) return Utils.R;
 		if (dir == Utils.R) return Utils.D;
@@ -135,7 +152,7 @@ public class Part2 extends Part1 {
 		if (dir == Utils.L) return Utils.U;
 		return null;
 	}
-	
+
 	static int[] turnLeft(final int[] dir) {
 		if (dir == Utils.U) return Utils.L;
 		if (dir == Utils.L) return Utils.D;
@@ -143,7 +160,7 @@ public class Part2 extends Part1 {
 		if (dir == Utils.R) return Utils.U;
 		return null;
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(80, new Part2().compute("test1.txt").res);
@@ -152,10 +169,10 @@ public class Part2 extends Part1 {
 		assertEquals(368, new Part2().compute("test4.txt").res);
 		assertEquals(1206, new Part2().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
 		assertEquals(885394, new Part2().compute("input.txt").res);
 	}
-
+	
 }
