@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Utils {
-	
-	private final static String DIR = "/" + Utils.class.getPackageName().replace('.', '/') + "/";
 
+	private final static String DIR = "/" + Utils.class.getPackageName().replace('.', '/') + "/";
+	
 	public static Stream<String> streamLines(final String file) {
 		try {
 			return Files.lines(Paths.get(Utils.class.getResource(DIR + file).toURI()));
@@ -27,27 +27,27 @@ public class Utils {
 			return null;
 		}
 	}
-
+	
 	public static List<String> readLines(final String file) {
 		return streamLines(file).collect(Collectors.toList());
 	}
-
+	
 	public static String reverse(final String s) {
 		return new StringBuilder(s).reverse().toString();
 	}
-
+	
 	private static Stream<String> toSs(final String s) {
 		return Arrays.stream(s.trim().split("\\s+"));
 	}
-
+	
 	public static List<Integer> toIs(final String s) {
 		return toSs(s).map(Integer::parseInt).collect(Collectors.toList());
 	}
-
+	
 	public static List<Long> toLs(final String s) {
 		return toSs(s).map(Long::parseLong).collect(Collectors.toList());
 	}
-	
+
 	public static <T> boolean same(final List<T> ts1, final List<T> ts2) {
 		if (ts1.size() != ts2.size())
 			return false;
@@ -57,26 +57,26 @@ public class Utils {
 				return false;
 		return true;
 	}
-	
+
 	/*
 	 * least common multiple
 	 */
 	public static long lcm(final long a, final long b) {
 		return a * b / gcd(a, b);
 	}
-	
+
 	/*
 	 * greatest common divisor
 	 */
 	public static long gcd(final long a, final long b) {
 		return b == 0 ? a : gcd(b, a % b);
 	}
-
+	
 	public static class CharMap {
 		public final int w;
 		public final int h;
 		public final char[][] chars;
-
+		
 		public CharMap(final List<String> lines) {
 			this.h = lines.size();
 			this.w = lines.get(0).length();
@@ -88,11 +88,11 @@ public class Utils {
 				y++;
 			}
 		}
-
+		
 		public CharMap(final String file) {
 			this(Utils.readLines(file));
 		}
-		
+
 		public List<Character> getChars() {
 			final Collection<Character> chars = new HashSet<>();
 			for (int x = 0; x < this.w; x++)
@@ -100,25 +100,25 @@ public class Utils {
 					chars.add(this.chars[x][y]);
 			return new LinkedList<>(chars);
 		}
-
+		
 		public boolean isOutside(final int x, final int y) {
 			return x < 0 || y < 0 || x >= this.w || y >= this.h;
 		}
-		
+
 		public Character getChar(final int x, final int y) {
 			return isOutside(x, y) ? null : this.chars[x][y];
 		}
-		
+
 		public void setChar(final int x, final int y, final char c) {
 			if (!isOutside(x, y))
 				this.chars[x][y] = c;
 		}
-		
+
 		public Symbol getSymbol(final int x, final int y) {
 			final Character c = getChar(x, y);
 			return c == null ? null : new Symbol(c, x, y);
 		}
-		
+
 		@Override
 		public String toString() {
 			String ret = "";
@@ -130,7 +130,7 @@ public class Utils {
 			}
 			return ret;
 		}
-		
+
 		public List<Symbol> getAll(final char c) {
 			final List<Symbol> ret = new ArrayList<>();
 			for (int x = 0; x < this.w; x++)
@@ -141,7 +141,7 @@ public class Utils {
 				}
 			return ret;
 		}
-		
+
 		/**
 		 * get the word in direction dir with length l, starting with the next char in direction
 		 * offset != 0 moves the starting x,y wrt to given direction
@@ -151,7 +151,7 @@ public class Utils {
 				x = x + offset * dir[0];
 				y = y + offset * dir[1];
 			}
-			
+
 			String ret = "";
 			for (int i = 0; i < l; i++) {
 				final Character c = getChar(x = x + dir[0], y = y + dir[1]);
@@ -161,28 +161,25 @@ public class Utils {
 			return ret;
 		}
 	}
-	
-	public static class Symbol {
-		public final char c;
-		public final int x;
-		public final int y;
-		
-		public Symbol(final char c, final int x, final int y) {
-			this.c = c;
-			this.x = x;
-			this.y = y;
-		}
 
+	public static class Symbol extends Pos {
+		public final char c;
+
+		public Symbol(final char c, final int x, final int y) {
+			super(x, y);
+			this.c = c;
+		}
+		
 		@Override
 		public String toString() {
 			return this.x + "," + this.y + ":" + this.c;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			return Objects.hash(this.c, this.x, this.y);
 		}
-		
+
 		@Override
 		public boolean equals(final Object obj) {
 			if (this == obj)
@@ -195,14 +192,14 @@ public class Utils {
 			return this.c == other.c && this.x == other.x && this.y == other.y;
 		}
 	}
-	
+
 	public final static int[] U = new int[] { 0, -1 };
 	public final static int[] D = new int[] { 0, 1 };
 	public final static int[] L = new int[] { -1, 0 };
 	public final static int[] R = new int[] { 1, 0 };
-	
+
 	public final static int[][] DIRS90 = new int[][] { U, R, D, L };
-	
+
 	public final static int[] N = U;
 	public final static int[] NE = new int[] { 1, -1 };
 	public final static int[] E = R;
@@ -211,9 +208,9 @@ public class Utils {
 	public final static int[] SW = new int[] { -1, -1 };
 	public final static int[] W = L;
 	public final static int[] NW = new int[] { -1, 1 };
-	
-	public final static int[][] DIRS45 = new int[][] { N, NE, E, SE, S, SW, W, NW };
 
+	public final static int[][] DIRS45 = new int[][] { N, NE, E, SE, S, SW, W, NW };
+	
 	/**
 	 * removes first T to back of list
 	 *
@@ -226,16 +223,16 @@ public class Utils {
 		ts.add(ret);
 		return ret;
 	}
-
+	
 	public static class Pos {
 		public int x;
 		public int y;
-
+		
 		public Pos(final int x, final int y) {
 			this.x = x;
 			this.y = y;
 		}
-		
+
 		@Override
 		public boolean equals(final Object obj) {
 			if (obj == this)
@@ -245,16 +242,16 @@ public class Utils {
 			final Pos o = (Pos) obj;
 			return this.x == o.x && this.y == o.y;
 		}
-
+		
 		@Override
 		public String toString() {
 			return "(" + this.x + "," + this.y + ")";
 		}
-
+		
 		@Override
 		public int hashCode() {
 			return toString().hashCode();
 		}
 	}
-	
+
 }
