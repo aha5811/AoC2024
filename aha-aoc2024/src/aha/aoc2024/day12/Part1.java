@@ -15,31 +15,39 @@ import aha.aoc2024.Utils.Pos;
 import aha.aoc2024.Utils.Symbol;
 
 public class Part1 extends Part {
-
-	// https://adventofcode.com/2024/day/12
 	
+	// https://adventofcode.com/2024/day/12
+
 	@Override
 	public Part compute(final String file) {
 		final CharMap cm = new CharMap(this.dir + file);
-		
-		final List<Region> regions = getRegions(cm);
-		
-		for (final Region r : regions) {
-			final int b = r.getBorder(), s = r.size();
-			System.out.println(r.c + " " + s + " * " + b + " = " + s * b);
-			this.res += s * b;
-		}
-		System.out.println("total: " + this.res);
 
+		final List<Region> regions = getRegions(cm, getRegFac());
+		
+		for (final Region r : regions)
+			this.res += getFenceCost(r);
+		
 		return this;
 	}
+
+	interface RegFac {
+		Region from(final Symbol s);
+	}
+
+	protected RegFac getRegFac() { return s -> new Region(s); }
 	
-	private List<Region> getRegions(final CharMap cm) {
+	protected int getFenceCost(final Region r) {
+		final int b = r.getBorder(), s = r.size(), total = s * b;
+		System.out.println(r.c + " " + s + " * " + b + " = " + total);
+		return total;
+	}
+	
+	private List<Region> getRegions(final CharMap cm, final RegFac rf) {
 		final List<Region> ret = new LinkedList<>();
-		
+
 		for (final char c : cm.getChars()) {
 			List<Region> tmp = new LinkedList<>();
-
+			
 			for (final Symbol s : cm.getAll(c)) {
 				boolean found = false;
 				for (final Region r : tmp)
@@ -48,106 +56,110 @@ public class Part1 extends Part {
 						r.add(s);
 					}
 				if (!found)
-					tmp.add(new Region(s));
+					tmp.add(rf.from(s));
 			}
-
+			
 			// merge
-			while (true) {
+			while (tmp.size() > 1) {
 				final List<Region> merged = new LinkedList<>();
+				final int inSize = tmp.size();
 				while (!tmp.isEmpty()) {
 					final Region r = tmp.remove(0);
+					merged.add(r);
 					final Iterator<Region> ri = tmp.iterator();
 					while (ri.hasNext()) {
 						final Region or = ri.next();
 						if (r.merges(or))
 							ri.remove();
 					}
-					merged.add(r);
 				}
-				final boolean changed = merged.size() < tmp.size();
 				tmp = merged;
-				if (!changed)
+				if (tmp.size() == inSize)
 					break;
 			}
-
+			
 			ret.addAll(tmp);
 		}
-		
+
 		return ret;
 	}
-	
+
 	static class Region {
 		char c;
-		Collection<Symbol> poss = new HashSet<>();
-		
+		Collection<Symbol> ss = new HashSet<>();
+
 		public Region(final Symbol s) {
 			this.c = s.c;
 			add(s);
 		}
-
-		public boolean merges(final Region other) {
+		
+		boolean merges(final Region other) {
 			boolean touches = false;
-			for (final Symbol p : other.poss)
-				if (isNeighbour(p)) {
+			for (final Symbol s : other.ss)
+				if (isNeighbour(s)) {
 					touches = true;
 					break;
 				}
 			if (touches)
-				this.poss.addAll(other.poss);
+				this.ss.addAll(other.ss);
 			return touches;
 		}
+
+		void add(final Symbol s) {
+			this.ss.add(s);
+		}
 		
-		public void add(final Symbol s) {
-			this.poss.add(s);
+		boolean isNeighbour(final Symbol s) {
+			if (s.c != this.c)
+				return false;
+			return isNeighbourP(s);
+		}
+		
+		boolean isNeighbourP(final Pos p) {
+			for (final Pos ap : this.ss)
+				if (isNeighbour(p, ap))
+					return true;
+			return false;
+		}
+		
+		int size() {
+			return this.ss.size();
 		}
 
 		int getBorder() {
 			int ret = 0;
-			for (final Symbol p : this.poss)
+			for (final Pos p : this.ss)
 				ret += 4 - getNeighbours(p);
 			return ret;
 		}
-
-		int size() {
-			return this.poss.size();
-		}
 		
-		private int getNeighbours(final Pos p) {
+		protected final int getNeighbours(final Pos p) {
 			int ret = 0;
-			for (final Pos ap : this.poss)
+			for (final Pos ap : this.ss)
 				if (isNeighbour(ap, p))
 					ret++;
 			return ret;
 		}
-
-		boolean isNeighbour(final Symbol s) {
-			if (s.c != this.c)
-				return false;
-			for (final Pos ap : this.poss)
-				if (isNeighbour(s, ap))
-					return true;
-			return false;
-		}
-
+		
 		private boolean isNeighbour(final Pos p1, final Pos p2) {
 			for (final int[] dir : Utils.DIRS90)
 				if (p1.x + dir[0] == p2.x && p1.y + dir[1] == p2.y)
 					return true;
 			return false;
 		}
+
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(140, new Part1().compute("test1.txt").res);
 		assertEquals(772, new Part1().compute("test2.txt").res);
 		assertEquals(1930, new Part1().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
-		assertEquals(0, new Part1().compute("input.txt").res);
-		// 1421126 is too low
+		assertEquals(1421958, new Part1().compute("input.txt").res);
 	}
-	
+
 }
