@@ -9,9 +9,11 @@ import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 
 public class Part1 extends Part {
-
-	// https://adventofcode.com/2024/day/13
 	
+	// https://adventofcode.com/2024/day/13
+
+	long offset = 0;
+
 	@Override
 	public Part compute(final String file) {
 		final List<Machine> machines = new LinkedList<>();
@@ -23,82 +25,86 @@ public class Part1 extends Part {
 			else if (line.startsWith("Button B:"))
 				b = fromLine(line, 1);
 			else if (line.startsWith("Prize:")) {
-				final List<Integer> is = Utils.toIs(clean(line));
-				machines.add(new Machine(a, b, is.remove(0), is.get(0)));
+				final List<Long> ls = Utils.toLs(clean(line));
+				machines.add(new Machine(a, b, ls.remove(0) + this.offset, ls.get(0) + this.offset));
 			}
-
+		
 		for (final Machine m : machines)
 			this.res += computeFor(m);
-
+		
 		return this;
 	}
-	
+
 	protected long computeFor(final Machine m) {
-
+		
 		// as b cost < a cost first get max b pushes without overshoot
-
-		int bp = Math.min(m.px / m.b.xi, m.py / m.b.yi);
+		
+		int bp = (int) Math.min(m.px / m.b.xi, m.py / m.b.yi);
 		int ap = 0;
-
+		
 		while (bp > 0) {
-			while (m.getX(ap, bp) < m.px && m.gety(ap, bp) < m.py)
+			while (m.getX(ap, bp) < m.px && m.getY(ap, bp) < m.py)
 				ap++;
-			if (m.getX(ap, bp) == m.px && m.gety(ap, bp) == m.py)
+			if (m.getX(ap, bp) == m.px && m.getY(ap, bp) == m.py)
 				break;
 			else {
 				bp--;
 				ap = 0;
 			}
 		}
-
-		return bp * m.b.t + ap * m.a.t;
+		
+		return m.getCost(ap, bp);
 	}
 
 	static int MAX_PER_BUTTON = 100;
-
+	
 	static class Machine {
 		Button a;
 		Button b;
-		int px;
-		int py;
-
-		public Machine(final Button a, final Button b, final int px, final int py) {
+		long px;
+		long py;
+		
+		public Machine(final Button a, final Button b, final long px, final long py) {
 			this.a = a;
 			this.b = b;
 			this.px = px;
 			this.py = py;
 		}
-		
-		int getX(final int pushesA, final int pushesB) {
+
+		long getX(final long pushesA, final long pushesB) {
 			return pushesA * this.a.xi + pushesB * this.b.xi;
 		}
-
-		int gety(final int pushesA, final int pushesB) {
+		
+		long getY(final long pushesA, final long pushesB) {
 			return pushesA * this.a.yi + pushesB * this.b.yi;
 		}
+		
+		long getCost(final long pushesA, final long pushesB) {
+			return pushesA * this.a.t + pushesB * this.b.t;
+		}
 	}
-
+	
 	static class Button {
 		int xi;
 		int yi;
 		int t; // token cost
-		
+
 		public Button(final int xi, final int yi, final int t) {
 			this.xi = xi;
 			this.yi = yi;
 			this.t = t;
 		}
 	}
-
+	
 	private Button fromLine(final String line, final int t) {
 		final List<Integer> is = Utils.toIs(clean(line));
 		return new Button(is.remove(0), is.get(0), t);
 	}
-	
+
 	private String clean(final String s) {
 		return s.replaceAll("\\D", " ").replaceAll("\\s+", " ").trim();
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(280, new Part1().compute("test1.txt").res);
@@ -107,10 +113,10 @@ public class Part1 extends Part {
 		assertEquals(0, new Part1().compute("test4.txt").res);
 		assertEquals(480, new Part1().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
 		assertEquals(26810, new Part1().compute("input.txt").res);
 	}
-	
+
 }
