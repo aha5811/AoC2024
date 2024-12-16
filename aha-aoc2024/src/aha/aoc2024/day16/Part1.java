@@ -16,76 +16,130 @@ import aha.aoc2024.Utils.Pos;
 import aha.aoc2024.Utils.Symbol;
 
 public class Part1 extends Part {
-
-	// https://adventofcode.com/2024/day/16
 	
+	// https://adventofcode.com/2024/day/16
+
+	final static int TURN_COST = 1000, STEP_COST = 1;
+	
+	static class AR {
+		List<State> trace;
+		int cost;
+	}
+
+	static class State extends Pos {
+		int[] dir;
+		
+		public State(final int x, final int y, final int[] dir) {
+			super(x, y);
+			this.dir = dir;
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + Part1.toString(this.dir);
+		}
+	}
+	
+	private static String toString(final int[] dir) {
+		if (dir == Utils.U)
+			return "^";
+		else if (dir == Utils.D)
+			return "v";
+		else if (dir == Utils.R)
+			return ">";
+		else if (dir == Utils.L)
+			return "<";
+		return "?";
+	}
+
 	@Override
 	public Part compute(final String file) {
 		final CharMap cm = new CharMap(this.dir + file);
+		
+		final List<AR> res = new LinkedList<>();
+
+		while (true) {
+			final AR ar = getSearch(cm);
+			res.add(ar);
+			break;
+		}
+
+		this.res = res.get(0).cost;
+
+		return this;
+	}
+	
+	protected AR getSearch(final CharMap cm) {
+		AR aRes = null;
 		
 		final List<State> open = new LinkedList<>();
 		final List<Pos> closed = new LinkedList<>();
 		final Map<State, State> from = new HashMap<>();
 		final Map<State, Integer> g = new HashMap<>(), f = new HashMap<>();
-		
+
 		Pos e;
 		{
 			final Symbol ss = cm.getAll('S').get(0);
 			final State s = new State(ss.x, ss.y, Utils.R);
-			
+
 			final Symbol es = cm.getAll('E').get(0);
 			e = new Pos(es.x, es.y);
-
-			open.add(s);
 			
+			open.add(s);
+
 			g.put(s, 0);
 			f.put(s, h(s, e));
 		}
 		
-		State res = null;
-		
 		while (!open.isEmpty()) {
-
+			
 			Collections.sort(open, new Comparator<Pos>() {
 				@Override
 				public int compare(final Pos p1, final Pos p2) {
 					return Integer.compare(f.get(p1), f.get(p2));
 				}
 			});
-			
+
 			final State c = open.remove(0);
 			closed.add(c);
-			
+
 			if (h(c, e) == 0) {
-				res = c;
+				aRes = new AR();
+				aRes.cost = g.get(c);
+				aRes.trace = new LinkedList<>();
+				{
+					State s = c;
+					while ((s = from.get(s)) != null)
+						aRes.trace.add(0, s);
+				}
 				break;
 			}
-			
+
 			for (final int[] dir : Utils.DIRS90) {
 				final State n = new State(c.x + dir[0], c.y + dir[1], dir);
 				if (cm.getChar(n.x, n.y) == '#')
 					continue;
 				if (closed.contains(n))
 					continue;
-				
-				final int tentG = g.get(c) + getTurns(c.dir, n.dir) * 1000 + 1;
 
-				if (!g.containsKey(n) || tentG < g.get(n)) {
+				int gnext = g.get(c) + getTurns(c.dir, n.dir) * TURN_COST + 1 * STEP_COST;
+				if (cm.getChar(n.x, n.y) == 'O')
+					gnext++;
+				
+				if (!g.containsKey(n) || gnext < g.get(n)) {
 					from.put(n, c);
-					g.put(n, tentG);
-					f.put(n, tentG + h(n, e));
+					g.put(n, gnext);
+					f.put(n, gnext + h(n, e));
 					if (!open.contains(n))
 						open.add(n);
 				}
 			}
-			
+
 		}
 
-		this.res = g.get(res);
-		
-		return this;
+		return aRes;
 	}
-	
+
 	/*
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
@@ -151,39 +205,32 @@ function A_Star(start, goal, h)
 			turns = 1;
 		return turns;
 	}
-
-	static class State extends Pos {
-		int[] dir;
-
-		public State(final int x, final int y, final int[] dir) {
-			super(x, y);
-			this.dir = dir;
-		}
-		
-		@Override
-		public String toString() {
-			return super.toString() + Part1.toString(this.dir);
-		}
-	}
-
-	private static String toString(final int[] dir) {
-		if (dir == Utils.U)
-			return "^";
-		else if (dir == Utils.D)
-			return "v";
-		else if (dir == Utils.R)
-			return ">";
-		else if (dir == Utils.L)
-			return "<";
-		return "?";
+	
+	/**
+	 * heuristic by distance without turns
+	 *
+	 * @param s
+	 * @param e
+	 * @return
+	 */
+	private int h(final State s, final Pos e) {
+		final int dx = Math.abs(s.x - e.x), dy = Math.abs(s.y - e.y);
+		return dx + dy;
 	}
 	
-	private int h(final State s, final Pos e) {
-
+	/**
+	 * heuristic with turns
+	 *
+	 * @param s
+	 * @param e
+	 * @return
+	 */
+	private int h2(final State s, final Pos e) {
+		
 		final int dx = Math.abs(s.x - e.x), dy = Math.abs(s.y - e.y);
 		if (dx + dy == 0)
 			return 0;
-
+		
 		int turns = 0;
 		if (s.dir == Utils.L && s.x < e.x
 				|| s.dir == Utils.R && s.x > e.x
@@ -197,19 +244,19 @@ function A_Star(start, goal, h)
 			turns = 0;
 		else
 			turns = 1;
-
-		return turns * 1000 + dx + dy;
+		
+		return turns * TURN_COST + (dx + dy) * STEP_COST;
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(7036, new Part1().compute("test1.txt").res);
 		assertEquals(11048, new Part1().compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
 		assertEquals(72400, new Part1().compute("input.txt").res);
 	}
-	
+
 }
