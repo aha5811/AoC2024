@@ -7,15 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import aha.aoc2024.Utils;
+
 public class Part2 extends Part1 {
 	
 	// https://adventofcode.com/2024/day/11#part2
-
-	private static <K> void inc(final Map<K, Long> map, final K k, final Long m) {
-		if (!map.containsKey(k))
-			map.put(k, 0l);
-		map.put(k, map.get(k) + m);
-	}
 
 	@Override
 	protected long computeExplosion(final List<Long> startLs) {
@@ -49,6 +45,10 @@ public class Part2 extends Part1 {
 		
 	}
 	
+	private void inc(final Map<Long, Long> l2n, final Long l, final long m) {
+		Utils.inc(l2n, l, m);
+	}
+
 	@Override
 	public void aTest() {
 		assertEquals(22, new Part2().setBlinks(6).compute("test.txt").res);
