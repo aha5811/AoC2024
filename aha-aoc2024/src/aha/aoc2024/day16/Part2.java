@@ -21,23 +21,24 @@ public class Part2 extends Part1 {
 		final Symbol S = cm.getAll('S').get(0), E = cm.getAll('E').get(0);
 
 		while (true) {
-			final int visited = cm.getAll('O').size();
 			
-			final AR ar = getSearch(cm);
-			
+			final Result ar = doSearch(cm);
+
+			final int Osize1 = cm.getAll('O').size();
+
 			for (final State s : ar.trace)
 				cm.setChar(s.x, s.y, 'O');
 
 			cm.setChar(S.x, S.y, S.c);
 			cm.setChar(E.x, E.y, E.c);
 			
-			final int visitedAfter = cm.getAll('O').size();
+			final int Osize2 = cm.getAll('O').size();
 			
-			if (visitedAfter == visited)
+			if (Osize1 == Osize2)
 				break;
 		}
 
-		System.out.println(cm);
+		// System.out.println(cm);
 		
 		this.res = cm.getAll('O').size() + 2;
 		
@@ -52,7 +53,7 @@ public class Part2 extends Part1 {
 
 	@Override
 	public void main() {
-		// assertEquals(0, new Part2().compute("input.txt").res);
+		// assertEquals(435, new Part2().compute("input.txt").res); // 17s
 	}
 
 }

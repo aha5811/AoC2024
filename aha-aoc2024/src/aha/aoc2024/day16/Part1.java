@@ -21,7 +21,7 @@ public class Part1 extends Part {
 
 	final static int TURN_COST = 1000, STEP_COST = 1;
 	
-	static class AR {
+	static class Result {
 		List<State> trace;
 		int cost;
 	}
@@ -37,6 +37,16 @@ public class Part1 extends Part {
 		@Override
 		public String toString() {
 			return super.toString() + Part1.toString(this.dir);
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (obj == this)
+				return true;
+			if (obj == null || !(obj instanceof State))
+				return false;
+			final State other = (State) obj;
+			return this.x == other.x && this.y == other.y && this.dir == other.dir;
 		}
 	}
 	
@@ -56,24 +66,16 @@ public class Part1 extends Part {
 	public Part compute(final String file) {
 		final CharMap cm = new CharMap(this.dir + file);
 		
-		final List<AR> res = new LinkedList<>();
-
-		while (true) {
-			final AR ar = getSearch(cm);
-			res.add(ar);
-			break;
-		}
-
-		this.res = res.get(0).cost;
+		this.res = doSearch(cm).cost;
 
 		return this;
 	}
 	
-	protected AR getSearch(final CharMap cm) {
-		AR aRes = null;
+	protected Result doSearch(final CharMap cm) {
+		Result aRes = null;
 		
 		final List<State> open = new LinkedList<>();
-		final List<Pos> closed = new LinkedList<>();
+		final List<State> closed = new LinkedList<>();
 		final Map<State, State> from = new HashMap<>();
 		final Map<State, Integer> g = new HashMap<>(), f = new HashMap<>();
 
@@ -104,7 +106,7 @@ public class Part1 extends Part {
 			closed.add(c);
 
 			if (h(c, e) == 0) {
-				aRes = new AR();
+				aRes = new Result();
 				aRes.cost = g.get(c);
 				aRes.trace = new LinkedList<>();
 				{
@@ -207,7 +209,7 @@ function A_Star(start, goal, h)
 	}
 	
 	/**
-	 * heuristic by distance without turns
+	 * fast heuristic w/ distance w/o turns
 	 *
 	 * @param s
 	 * @param e
@@ -218,36 +220,6 @@ function A_Star(start, goal, h)
 		return dx + dy;
 	}
 	
-	/**
-	 * heuristic with turns
-	 *
-	 * @param s
-	 * @param e
-	 * @return
-	 */
-	private int h2(final State s, final Pos e) {
-		
-		final int dx = Math.abs(s.x - e.x), dy = Math.abs(s.y - e.y);
-		if (dx + dy == 0)
-			return 0;
-		
-		int turns = 0;
-		if (s.dir == Utils.L && s.x < e.x
-				|| s.dir == Utils.R && s.x > e.x
-				|| s.dir == Utils.U && s.y < e.y
-				|| s.dir == Utils.D && s.y > e.y)
-			turns = 2;
-		else if (dx == 0 && (s.y < e.y && s.dir == Utils.D
-				|| s.y > e.y && s.dir == Utils.U)
-				|| dy == 0 && (s.x < e.x && s.dir == Utils.R
-				|| s.x > e.x && s.dir == Utils.L))
-			turns = 0;
-		else
-			turns = 1;
-		
-		return turns * TURN_COST + (dx + dy) * STEP_COST;
-	}
-
 	@Override
 	public void aTest() {
 		assertEquals(7036, new Part1().compute("test1.txt").res);
