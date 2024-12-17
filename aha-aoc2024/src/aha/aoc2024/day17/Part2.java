@@ -12,37 +12,48 @@ public class Part2 extends Part1 {
 	public Part2 compute(final String file) {
 		final Machine m = read(file);
 
+		//	res = 0
+		// 	for each digit but the leftmost 2
+		//		current eightpower = eight ^ order of digit
+		//		add eightpowers to res until digit is correct
+		//	for the remaining two digits:
+		//	while (quine is not readched)
+		//		increase res by 1
+		
+		// ideally we could go do the first part for all digits
+		// but then something goes wrong in digit 1
+		// so we break early and do the remaining 63 steps one by one
+		
 		BigInteger res = BigInteger.ZERO;
 		
 		int digit = m.ops.length - 1;
 		
 		while (true) {
-			final BigInteger c = EIGHT.pow(digit);
-			BigInteger mult = BigInteger.ONE;
-			BigInteger a;
+			final BigInteger ep = EIGHT.pow(digit);
 			while (true) {
-				a = res.add(c.multiply(mult));
-				reset(m, a);
+				res = res.add(ep);
+				reset(m, res);
+				
 				m.run();
-				final int[] o2i = o2i(m);
-				if (m.ops[digit] == o2i[digit])
+				
+				if (m.out.get(digit).intValue() == m.ops[digit])
 					break;
-				mult = mult.add(BigInteger.ONE);
 			}
-			res = a;
 			digit--;
 			if (digit == 1)
 				break;
 		}
 		
-		final String ops2s = ops2s(m);
+		final String ops2s = ops2s(m); // quine
 		
 		while (true) {
 			reset(m, res);
+
 			m.run();
-			final String o2s = o2s(m);
-			if (o2s.equals(ops2s))
+			
+			if (o2s(m).equals(ops2s))
 				break;
+			
 			res = res.add(BigInteger.ONE);
 		}
 		
@@ -56,14 +67,6 @@ public class Part2 extends Part1 {
 		for (final int op : m.ops)
 			ret += "," + op;
 		ret = ret.substring(1);
-		return ret;
-	}
-	
-	private int[] o2i(final Machine m) {
-		final int[] ret = new int[m.out.size()];
-		int i = 0;
-		for (final BigInteger bi : m.out)
-			ret[i++] = bi.intValue();
 		return ret;
 	}
 	
