@@ -16,29 +16,30 @@ import aha.aoc2024.Utils.Pos;
 import aha.aoc2024.Utils.Symbol;
 
 public class Part1 extends Part {
-	
-	// https://adventofcode.com/2024/day/16
 
-	final static int TURN_COST = 1000, STEP_COST = 1;
+	// https://adventofcode.com/2024/day/16
 	
+	final static int TURN_COST = 1000, STEP_COST = 1;
+
 	static class Result {
 		List<State> trace;
 		int cost;
 	}
-
+	
 	static class State extends Pos {
 		int[] dir;
-		
+
 		public State(final int x, final int y, final int[] dir) {
 			super(x, y);
 			this.dir = dir;
 		}
-
+		
 		@Override
 		public String toString() {
 			return super.toString() + Part1.toString(this.dir);
 		}
-
+		
+		// without this method part1 takes <1s, but part2 won't work at all
 		@Override
 		public boolean equals(final Object obj) {
 			if (obj == this)
@@ -49,7 +50,7 @@ public class Part1 extends Part {
 			return this.x == other.x && this.y == other.y && this.dir == other.dir;
 		}
 	}
-	
+
 	private static String toString(final int[] dir) {
 		if (dir == Utils.U)
 			return "^";
@@ -61,50 +62,50 @@ public class Part1 extends Part {
 			return "<";
 		return "?";
 	}
-
+	
 	@Override
 	public Part compute(final String file) {
 		final CharMap cm = new CharMap(this.dir + file);
-		
-		this.res = doSearch(cm).cost;
 
+		this.res = doSearch(cm).cost;
+		
 		return this;
 	}
-	
+
 	protected Result doSearch(final CharMap cm) {
 		Result aRes = null;
-		
+
 		final List<State> open = new LinkedList<>();
 		final List<State> closed = new LinkedList<>();
 		final Map<State, State> from = new HashMap<>();
 		final Map<State, Integer> g = new HashMap<>(), f = new HashMap<>();
-
+		
 		Pos e;
 		{
 			final Symbol ss = cm.getAll('S').get(0);
 			final State s = new State(ss.x, ss.y, Utils.R);
-
+			
 			final Symbol es = cm.getAll('E').get(0);
 			e = new Pos(es.x, es.y);
-			
-			open.add(s);
 
+			open.add(s);
+			
 			g.put(s, 0);
 			f.put(s, h(s, e));
 		}
-		
+
 		while (!open.isEmpty()) {
-			
+
 			Collections.sort(open, new Comparator<Pos>() {
 				@Override
 				public int compare(final Pos p1, final Pos p2) {
 					return Integer.compare(f.get(p1), f.get(p2));
 				}
 			});
-
+			
 			final State c = open.remove(0);
 			closed.add(c);
-
+			
 			if (h(c, e) == 0) {
 				aRes = new Result();
 				aRes.cost = g.get(c);
@@ -116,18 +117,18 @@ public class Part1 extends Part {
 				}
 				break;
 			}
-
+			
 			for (final int[] dir : Utils.DIRS90) {
 				final State n = new State(c.x + dir[0], c.y + dir[1], dir);
 				if (cm.getChar(n.x, n.y) == '#')
 					continue;
 				if (closed.contains(n))
 					continue;
-
+				
 				int gnext = g.get(c) + getTurns(c.dir, n.dir) * TURN_COST + 1 * STEP_COST;
 				if (cm.getChar(n.x, n.y) == 'O')
 					gnext++;
-				
+
 				if (!g.containsKey(n) || gnext < g.get(n)) {
 					from.put(n, c);
 					g.put(n, gnext);
@@ -136,12 +137,12 @@ public class Part1 extends Part {
 						open.add(n);
 				}
 			}
-
+			
 		}
-
+		
 		return aRes;
 	}
-
+	
 	/*
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
@@ -197,7 +198,7 @@ function A_Star(start, goal, h)
     return failure
 
 	 */
-	
+
 	private int getTurns(final int[] dir1, final int[] dir2) {
 		int turns = 2;
 		if (dir1 == dir2)
@@ -207,7 +208,7 @@ function A_Star(start, goal, h)
 			turns = 1;
 		return turns;
 	}
-	
+
 	/**
 	 * fast heuristic w/ distance w/o turns
 	 *
@@ -219,16 +220,16 @@ function A_Star(start, goal, h)
 		final int dx = Math.abs(s.x - e.x), dy = Math.abs(s.y - e.y);
 		return dx + dy;
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(7036, new Part1().compute("test1.txt").res);
 		assertEquals(11048, new Part1().compute("test.txt").res);
 	}
-	
+
 	@Override
 	public void main() {
-		assertEquals(72400, new Part1().compute("input.txt").res);
+		assertEquals(72400, new Part1().compute("input.txt").res); // 4s
 	}
-
+	
 }

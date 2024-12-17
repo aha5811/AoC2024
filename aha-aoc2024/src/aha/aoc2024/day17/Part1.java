@@ -2,6 +2,7 @@ package aha.aoc2024.day17;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +14,8 @@ public class Part1 extends Part {
 	// https://adventofcode.com/2024/day/17
 	
 	public String res;
+	
+	public static BigInteger EIGHT = BigInteger.valueOf(8);
 
 	@Override
 	public Part1 compute(final String file) {
@@ -20,37 +23,51 @@ public class Part1 extends Part {
 		
 		m.run();
 
-		String s = "";
-		for (final Integer i : m.out)
-			s += "," + i;
-		if (!s.isEmpty())
-			s = s.substring(1);
-		this.res = s;
-
+		this.res = o2s(m);
+		
 		return this;
 	}
 
+	protected String o2s(final Machine m) {
+		String s = "";
+		for (final BigInteger i : m.out)
+			s += "," + i;
+		if (!s.isEmpty())
+			s = s.substring(1);
+		return s;
+	}
+
 	static class Machine {
-		int a;
-		int b;
-		int c;
+		BigInteger a;
+		BigInteger b;
+		BigInteger c;
 
 		int p = 0;
 
 		int[] ops;
 
-		List<Integer> out = new LinkedList<>();
+		List<BigInteger> out = new LinkedList<>();
 		
 		public Machine(final int a, final int b, final int c, final int[] ops) {
-			this.a = a;
-			this.b = b;
-			this.c = c;
+			this.a = BigInteger.valueOf(a);
+			this.b = BigInteger.valueOf(b);
+			this.c = BigInteger.valueOf(b);
 			this.ops = ops;
 		}
 
+		@Override
+		public String toString() {
+			String ret = "A: " + this.a + "\nB: " + this.b + "\nC: " + this.c + "\n";
+			for (int i = 0; i < this.ops.length; i++)
+				ret += (this.p == i ? ">" : " ") + this.ops[i];
+			return ret;
+		}
+
 		void run() {
+			// System.out.println(this);
 			while (true) {
 				next();
+				// System.out.println(this);
 				if (this.p >= this.ops.length)
 					break;
 			}
@@ -81,9 +98,9 @@ public class Part1 extends Part {
 				this.p += 2;
 		}
 		
-		int combo(final int operand) {
+		BigInteger combo(final int operand) {
 			if (operand >= 0 && operand <= 3)
-				return operand;
+				return BigInteger.valueOf(operand);
 			if (operand == 4)
 				return this.a;
 			if (operand == 5)
@@ -105,14 +122,14 @@ public class Part1 extends Part {
 		void bxl(final int operand) {
 			// The bxl instruction (opcode 1) calculates the bitwise XOR of register B and
 			// the instruction's literal operand, then stores the result in register B.
-			this.b = this.b ^ operand;
+			this.b = this.b.xor(BigInteger.valueOf(operand));
 		}
 		
 		void bst(final int operand) {
 			// The bst instruction (opcode 2) calculates the value of its combo operand
 			// modulo 8 (thereby keeping only its lowest 3 bits), then writes that value to
 			// the B register.
-			this.b = combo(operand) % 8;
+			this.b = combo(operand).mod(EIGHT);
 		}
 		
 		void jnz(final int operand) {
@@ -120,7 +137,7 @@ public class Part1 extends Part {
 			// if the A register is not zero, it jumps by setting the instruction pointer to
 			// the value of its literal operand; if this instruction jumps, the instruction
 			// pointer is not increased by 2 after this instruction.
-			if (this.a == 0)
+			if (this.a == BigInteger.ZERO)
 				this.p += 2;
 			else
 				this.p = operand;
@@ -130,14 +147,14 @@ public class Part1 extends Part {
 			// The bxc instruction (opcode 4) calculates the bitwise XOR of register B and
 			// register C, then stores the result in register B. (For legacy reasons, this
 			// instruction reads an operand but ignores it.)
-			this.b = this.b ^ this.c;
+			this.b = this.b.xor(this.c);
 		}
 		
 		void out(final int operand) {
 			// The out instruction (opcode 5) calculates the value of its combo operand
 			// modulo 8, then outputs that value. (If a program outputs multiple values,
 			// they are separated by commas.)
-			this.out.add(combo(operand) % 8);
+			this.out.add(combo(operand).mod(EIGHT));
 		}
 		
 		void bdv(final int operand) {
@@ -154,12 +171,12 @@ public class Part1 extends Part {
 			this.c = dv(operand);
 		}
 
-		private int dv(final int operand) {
-			return (int) (this.a / Math.pow(2, combo(operand)));
+		private BigInteger dv(final int operand) {
+			return this.a.divide(BigInteger.TWO.pow(combo(operand).intValue()));
 		}
 	}
 	
-	private Machine read(final String file) {
+	protected Machine read(final String file) {
 		Machine m = null;
 		{
 			int a = 0, b = 0, c = 0;
@@ -187,12 +204,12 @@ public class Part1 extends Part {
 
 	@Override
 	public void aTest() {
-		assertEquals("4,6,3,5,6,3,5,2,1,0", new Part1().compute("test.txt").res);
+		assertEquals("4,6,3,5,6,3,5,2,1,0", new Part1().compute("test1.txt").res);
 	}
 	
 	@Override
 	public void main() {
-		assertEquals("", new Part1().compute("input.txt").res);
+		assertEquals("7,5,4,3,4,5,3,4,6", new Part1().compute("input.txt").res);
 	}
 
 }
