@@ -2,6 +2,7 @@ package aha.aoc2024.day15;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,52 +39,47 @@ public class Part2 extends Part1 {
 	protected boolean move(final CharMap cm, final Symbol s, final int[] dir) {
 		final int nx = s.x + dir[0], ny = s.y + dir[1];
 		final Symbol next = cm.getSymbol(nx, ny);
+
+		boolean ret = false;
 		if (next.c == '#')
-			return false;
-		else if (next.c == '.') {
-			doMove(cm, s, nx, ny);
-			return true;
-		} else if (dir == Utils.L && next.c == ']' && move(cm, cm.getSymbol(nx - 1, ny), dir)) {
+			;
+		else if (next.c == '.')
+			ret = true;
+		else if (dir == Utils.L && next.c == ']' && move(cm, cm.getSymbol(nx - 1, ny), dir)) {
 			doMove(cm, next, next.x - 1, next.y);
-			doMove(cm, s, nx, ny);
-			return true;
+			ret = true;
 		} else if (dir == Utils.R && next.c == '[' && move(cm, cm.getSymbol(nx + 1, ny), dir)) {
 			doMove(cm, next, next.x + 1, next.y);
-			doMove(cm, s, nx, ny);
-			return true;
+			ret = true;
 		} else if ((dir == Utils.U || dir == Utils.D) && (next.c == '[' || next.c == ']')) {
-			boolean ret = false;
 			
 			// we do this by hand
 			final Map<Integer, Collection<Integer>> xLines = new HashMap<>();
 			final List<Integer> ys = new LinkedList<>();
-			int nny = ny;
-			{
-				ys.add(0, nny);
-				xLines.put(nny, new HashSet<>());
-				xLines.get(nny).add(nx);
-				xLines.get(nny).add(next.c == '[' ? nx + 1 : nx - 1);
-			}
+			int yy = s.y;
+			xLines.put(yy, Arrays.asList(s.x));
+			ys.add(yy);
+			
 			while (true) {
-				final Collection<Integer> xLine = xLines.get(nny);
-				nny += dir[1];
-				ys.add(0, nny);
-				xLines.put(nny, new HashSet<>());
+				final Collection<Integer> xLine = xLines.get(yy);
+				yy += dir[1];
+				ys.add(0, yy);
+				xLines.put(yy, new HashSet<>());
 				boolean blocked = false;
 				for (final int x : xLine) {
-					final char c = cm.getChar(x, nny);
+					final char c = cm.getChar(x, yy);
 					if (c == '#') {
 						blocked = true;
 						break;
 					} else if (c == '[' || c == ']') {
-						xLines.get(nny).add(x);
-						xLines.get(nny).add(c == '[' ? x + 1 : x - 1);
+						xLines.get(yy).add(x);
+						xLines.get(yy).add(c == '[' ? x + 1 : x - 1);
 					}
 				}
 				if (blocked)
 					// move nothing
 					break;
-				else if (xLines.get(nny).isEmpty()) {
+				else if (xLines.get(yy).isEmpty()) {
 					// free -> move everything
 					for (final int y : ys)
 						for (final int x : xLines.get(y))
@@ -92,13 +88,12 @@ public class Part2 extends Part1 {
 					break;
 				}
 			}
-			
-			if (ret)
-				doMove(cm, s, nx, ny); // move robot
-			
-			return ret;
 		}
-		return false; // something blocked
+
+		if (ret)
+			doMove(cm, s, nx, ny);
+
+		return ret; // something blocked
 	}
 
 	private void doMove(final CharMap cm, final Symbol s, final int nx, final int ny) {
