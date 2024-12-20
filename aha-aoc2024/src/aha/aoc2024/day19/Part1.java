@@ -12,26 +12,26 @@ import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 
 public class Part1 extends Part {
-	
-	// https://adventofcode.com/2024/day/_
 
+	// https://adventofcode.com/2024/day/19
+	
 	@Override
 	public Part compute(final String file) {
-
+		
 		final List<String> designs = new LinkedList<>();
 		List<String> patterns = new LinkedList<>();
 		read(file, designs, patterns);
-		
-		patterns = compact(patterns);
 
+		patterns = compact(patterns);
+		
 		for (final String d : designs)
 			if (possible(d, patterns))
 				// System.out.println(d);
 				this.res++;
-
+		
 		return this;
 	}
-	
+
 	protected void read(final String file, final List<String> designs, final List<String> patterns) {
 		for (final String line : Utils.readLines(this.dir + file))
 			if (line.contains(","))
@@ -41,7 +41,7 @@ public class Part1 extends Part {
 			else
 				designs.add(line);
 	}
-
+	
 	/**
 	 * removes all patterns that can be build by other patterns
 	 *
@@ -55,9 +55,9 @@ public class Part1 extends Part {
 				return -1 * Integer.compare(s1.length(), s2.length());
 			}
 		});
-
+		
 		List<String> ret = patterns;
-
+		
 		while (true) {
 			final List<String> tmp = new LinkedList<>(ret);
 			boolean compacted = false;
@@ -74,23 +74,23 @@ public class Part1 extends Part {
 			else
 				ret = ps;
 		}
-		
+
 		return ret;
 	}
-
+	
 	private boolean possible(final String s, final List<String> patterns) {
 		if (s.isEmpty())
 			return true;
-
-		final List<String> sps = getPs4s(s, patterns);
 		
+		final List<String> sps = getPs4s(s, patterns);
+
 		boolean ret = false;
 		for (final String p : patterns)
 			if (s.length() >= p.length() && s.startsWith(p))
 				ret |= possible(s.substring(p.length()), sps);
 		return ret;
 	}
-
+	
 	/**
 	 * returns only those patterns that could appear anywhere in the string
 	 *
@@ -105,15 +105,15 @@ public class Part1 extends Part {
 				sps.add(p);
 		return sps;
 	}
-
+	
 	@Override
 	public void aTest() {
 		assertEquals(6, new Part1().compute("test.txt").res);
 	}
-	
+
 	@Override
 	public void main() {
 		assertEquals(365, new Part1().compute("input.txt").res);
 	}
-
+	
 }

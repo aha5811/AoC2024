@@ -14,17 +14,17 @@ import aha.aoc2024.Utils.Symbol;
 
 public class Part1 extends Part {
 
-	// https://adventofcode.com/2024/day/_
+	// https://adventofcode.com/2024/day/20
 	
-	private int target = 0;
-	private boolean atLeast = false;
+	protected int target = 0;
+	protected boolean atLeast = false;
 	
-	private Part1 setTarget(final int t) {
+	protected Part1 setTarget(final int t) {
 		this.target = t;
 		return this;
 	}
 
-	private Part1 setAtLeast() {
+	protected Part1 setAtLeast() {
 		this.atLeast = true;
 		return this;
 	}
@@ -33,25 +33,7 @@ public class Part1 extends Part {
 	public Part compute(final String file) {
 		
 		final Map<Pos, Integer> p2cnt = new HashMap<>();
-		List<Pos> ps;
-		Pos e;
-		{
-			final CharMap cm = new CharMap(this.dir + file);
-			
-			Pos s;
-			{
-				final Symbol ss = cm.getAll('S').get(0), es = cm.getAll('E').get(0);
-				s = new Pos(ss.x, ss.y);
-				e = new Pos(es.x, es.y);
-			}
-			
-			ps = aha.aoc2024.day18.Part1.doSearch(cm, s, e).trace;
-			ps.add(e);
-
-			int i = 0;
-			for (final Pos p : ps)
-				p2cnt.put(p, i++);
-		}
+		final List<Pos> ps = readFill(file, p2cnt);
 		
 		for (final Pos p : ps) {
 			final int step = p2cnt.get(p);
@@ -73,6 +55,28 @@ public class Part1 extends Part {
 		}
 		
 		return this;
+	}
+	
+	protected List<Pos> readFill(final String file, final Map<Pos, Integer> p2cnt) {
+		List<Pos> ps;
+		{
+			final CharMap cm = new CharMap(this.dir + file);
+			
+			Pos s, e;
+			{
+				final Symbol ss = cm.getAll('S').get(0), es = cm.getAll('E').get(0);
+				s = new Pos(ss.x, ss.y);
+				e = new Pos(es.x, es.y);
+			}
+			
+			ps = aha.aoc2024.day18.Part1.doSearch(cm, s, e).trace;
+			ps.add(e);
+
+			int i = 0;
+			for (final Pos p : ps)
+				p2cnt.put(p, i++);
+		}
+		return ps;
 	}
 	
 	@Override
