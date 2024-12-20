@@ -74,16 +74,16 @@ public class Part1 extends Part {
 		return cm;
 	}
 
-	static class Result {
-		List<Pos> trace;
-		int cost;
+	public static class Result {
+		public List<Pos> trace;
+		public int cost;
 	}
 
-	private int h(final Pos p, final Pos e) {
+	private static int h(final Pos p, final Pos e) {
 		return Math.abs(p.x - e.x) + Math.abs(p.y - e.y);
 	}
 	
-	protected Result doSearch(final CharMap cm, final Pos start, final Pos end) {
+	public static Result doSearch(final CharMap cm, final Pos start, final Pos end) {
 		Result aRes = null;
 
 		final List<Pos> open = new LinkedList<>();
