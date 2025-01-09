@@ -14,7 +14,7 @@ import aha.aoc2024.Utils;
 
 public class Part2 extends Part1 {
 
-	// https://adventofcode.com/2024/day/_#part2
+	// https://adventofcode.com/2024/day/22#part2
 
 	private int it = -1;
 	
@@ -91,7 +91,7 @@ public class Part2 extends Part1 {
 	
 	@Override
 	public void main() {
-		assertEquals(0, new Part2().compute("input.txt").res);
+		assertEquals(2044, new Part2().compute("input.txt").res);
 	}
 	
 }
