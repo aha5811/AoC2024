@@ -43,7 +43,8 @@ public class Part1 extends Part {
 	}
 	
 	/**
-	 * removes all patterns that can be build by other patterns
+	 * returns a list where all patterns that can be build by other patterns in the
+	 * list are removed
 	 *
 	 * @param patterns
 	 * @return
@@ -61,18 +62,18 @@ public class Part1 extends Part {
 		while (true) {
 			final List<String> tmp = new LinkedList<>(ret);
 			boolean compacted = false;
-			final List<String> ps = new LinkedList<>();
+			final List<String> notCompactable = new LinkedList<>();
 			while (!tmp.isEmpty()) {
-				final String d = tmp.removeFirst();
-				if (possible(d, tmp))
+				final String p = tmp.removeFirst();
+				if (possible(p, tmp))
 					compacted = true;
 				else
-					ps.add(d);
+					notCompactable.add(p);
 			}
 			if (!compacted)
 				break;
 			else
-				ret = ps;
+				ret = notCompactable;
 		}
 
 		return ret;
@@ -87,23 +88,26 @@ public class Part1 extends Part {
 		boolean ret = false;
 		for (final String p : patterns)
 			if (s.length() >= p.length() && s.startsWith(p))
-				ret |= possible(s.substring(p.length()), sps);
+				if (possible(s.substring(p.length()), sps)) {
+					ret = true;
+					break;
+				}
 		return ret;
 	}
 	
 	/**
 	 * returns only those patterns that could appear anywhere in the string
 	 *
-	 * @param s
-	 * @param patterns
+	 * @param t       target
+	 * @param strings
 	 * @return
 	 */
-	protected List<String> getPs4s(final String s, final List<String> patterns) {
-		final List<String> sps = new LinkedList<>();
-		for (final String p : patterns)
-			if (s.length() >= p.length() && s.contains(p))
-				sps.add(p);
-		return sps;
+	protected List<String> getPs4s(final String t, final List<String> strings) {
+		final List<String> ret = new LinkedList<>();
+		for (final String s : strings)
+			if (t.length() >= s.length() && t.contains(s))
+				ret.add(s);
+		return ret;
 	}
 	
 	@Override

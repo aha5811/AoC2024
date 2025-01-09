@@ -19,20 +19,19 @@ public class Part2 extends Part1 {
 		final Map<Pos, Integer> p2cnt = new HashMap<>();
 		final List<Pos> ps = readFill(file, p2cnt);
 		
-		for (final Pos p : ps) {
+		while (!ps.isEmpty()) {
+			final Pos p = ps.removeFirst();
 			final int step = p2cnt.get(p);
 			for (final Pos t : ps) {
-				final int tstep = p2cnt.get(t);
-				if (tstep <= step)
-					continue;
 				final int
+				tstep = p2cnt.get(t),
 				d = Math.abs(t.x - p.x) + Math.abs(t.y - p.y),
 				save = tstep - step - d;
 				if (d <= 20 && (save == this.target || this.atLeast && save > this.target))
 					this.res++;
 			}
 		}
-		
+
 		return this;
 	}
 	
