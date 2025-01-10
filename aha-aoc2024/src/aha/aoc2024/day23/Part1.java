@@ -108,7 +108,7 @@ public class Part1 extends Part {
 	
 	@Override
 	public void main() {
-		assertEquals(0, new Part1().compute("input.txt").res);
+		assertEquals(1437, new Part1().compute("input.txt").res); // 9.7s
 	}
 
 }

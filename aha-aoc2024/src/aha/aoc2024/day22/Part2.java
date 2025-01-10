@@ -13,24 +13,24 @@ import aha.aoc2024.Part;
 import aha.aoc2024.Utils;
 
 public class Part2 extends Part1 {
-
-	// https://adventofcode.com/2024/day/22#part2
-
-	private int it = -1;
 	
+	// https://adventofcode.com/2024/day/22#part2
+	
+	private int it = -1;
+
 	public Part2 setIt(final int it) {
 		this.it = it;
 		return this;
 	}
-	
+
 	@Override
 	public Part compute(final String file) {
-
+		
 		final Map<Integer, Map<String, Integer>> b2s2n = new HashMap<>();
 		final Collection<String> seqs = new HashSet<>();
-
+		
 		final int theIt = this.it == -1 ? IT : this.it;
-
+		
 		{
 			int n = 0;
 			for (final String s : Utils.readLines(this.dir + file)) {
@@ -42,9 +42,9 @@ public class Part2 extends Part1 {
 					final int nd = lastDigit(next);
 					final int change = nd - sd;
 					changes.add(0, change);
-					
+
 					// System.out.println(next + ": " + nd + " (" + change + ")");
-					
+
 					if (changes.size() >= 4) {
 						final String seq = changes.get(3) + "," + changes.get(2) + "," + changes.get(1) + ","
 								+ changes.get(0);
@@ -59,7 +59,7 @@ public class Part2 extends Part1 {
 				n++;
 			}
 		}
-
+		
 		long bananas = 0;
 		String winningSeq = null;
 		for (final String seq : seqs) {
@@ -72,26 +72,26 @@ public class Part2 extends Part1 {
 				winningSeq = seq;
 			}
 		}
-
+		
 		// System.out.println(winningSeq + " -> " + bananas);
 		this.res = bananas;
-		
+
 		return this;
 	}
-
+	
 	private int lastDigit(final long secret) {
 		return (int) (secret - secret / 10 * 10);
 	}
-
+	
 	@Override
 	public void aTest() {
 		assertEquals(6, new Part2().setIt(10).compute("test3.txt").res);
 		assertEquals(23, new Part2().compute("test2.txt").res);
 	}
-	
+
 	@Override
 	public void main() {
-		assertEquals(2044, new Part2().compute("input.txt").res);
+		assertEquals(2044, new Part2().compute("input.txt").res); // 6.7s
 	}
-	
+
 }

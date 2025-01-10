@@ -10,15 +10,15 @@ import aha.aoc2024.Part;
 import aha.aoc2024.Utils.Pos;
 
 public class Part2 extends Part1 {
-	
+
 	// https://adventofcode.com/2024/day/20#part2
-	
+
 	@Override
 	public Part compute(final String file) {
-		
+
 		final Map<Pos, Integer> p2cnt = new HashMap<>();
 		final List<Pos> ps = readFill(file, p2cnt);
-		
+
 		while (!ps.isEmpty()) {
 			final Pos p = ps.removeFirst();
 			final int step = p2cnt.get(p);
@@ -31,10 +31,10 @@ public class Part2 extends Part1 {
 					this.res++;
 			}
 		}
-
+		
 		return this;
 	}
-	
+
 	@Override
 	public void aTest() {
 		assertEquals(32, new Part2().setTarget(50).compute("test.txt").res);
@@ -52,10 +52,10 @@ public class Part2 extends Part1 {
 		assertEquals(4, new Part2().setTarget(74).compute("test.txt").res);
 		assertEquals(3, new Part2().setTarget(76).compute("test.txt").res);
 	}
-
+	
 	@Override
 	public void main() {
-		assertEquals(1006101, new Part2().setTarget(100).setAtLeast().compute("input.txt").res);
+		assertEquals(1006101, new Part2().setTarget(100).setAtLeast().compute("input.txt").res); // 2.5s
 	}
-
+	
 }
