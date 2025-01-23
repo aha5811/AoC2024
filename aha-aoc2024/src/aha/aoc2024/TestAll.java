@@ -24,7 +24,7 @@ import org.junit.platform.suite.api.Suite;
 	aha.aoc2024.day16.Part1.class, aha.aoc2024.day16.Part2.class,
 	aha.aoc2024.day17.Part1.class, aha.aoc2024.day17.Part2.class,
 	aha.aoc2024.day18.Part1.class, /* aha.aoc2024.day18.Part2.class, */ aha.aoc2024.day18.Part2v2.class,
-	aha.aoc2024.day19.Part1.class, // aha.aoc2024.day19.Part2.class,
+	aha.aoc2024.day19.Part1.class, aha.aoc2024.day19.Part2.class,
 	aha.aoc2024.day20.Part1.class, aha.aoc2024.day20.Part2.class,
 	// aha.aoc2024.day21.Part1.class, aha.aoc2024.day21.Part2.class,
 	aha.aoc2024.day22.Part1.class, aha.aoc2024.day22.Part2.class,
