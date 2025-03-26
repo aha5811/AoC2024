@@ -87,6 +87,10 @@ public class Part1 extends Part {
 		return ret;
 	}
 	
+	// https://www.reddit.com/r/adventofcode/comments/1hjaz2z/2024_day_21_part_1_wrong_combination/
+	// https://www.reddit.com/r/adventofcode/comments/1hj2odw/2024_day_21_solutions/
+	//
+	
 	private Pos getPos(final char[][] pad, final char c) {
 		for (int y = 0; y < pad.length; y++)
 			for (int x = 0; x < pad[0].length; x++)
@@ -180,8 +184,7 @@ public class Part1 extends Part {
 
 		assertEquals(
 				"<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A",
-				keys
-				);
+				keys);
 	}
 	
 	@Override
@@ -191,10 +194,8 @@ public class Part1 extends Part {
 
 	@Override
 	public void main() {
-		assertEquals(0, new Part1().compute("input.txt").res);
-		// 234718 too high
-		// 222166 too low
-		// 227898 too high
+		// not my solution
+		assertEquals(224326, new Part1().compute("input.txt").res);
 	}
 	
 }
